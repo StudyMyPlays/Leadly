@@ -323,3 +323,138 @@
   color: #93c5fd;
   box-shadow: 0 0 8px rgba(59,130,246,0.15);
 }
+
+/* ── Login page ──────────────────────────────────────────────── */
+@keyframes cardFadeUp {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+.login-card-enter { animation: cardFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes borderGlow {
+  0%   { border-color: rgba(59, 130, 246, 0.25); box-shadow: 0 0 20px rgba(59,130,246,0.10); }
+  50%  { border-color: rgba(96, 165, 250, 0.45); box-shadow: 0 0 36px rgba(96,165,250,0.20); }
+  100% { border-color: rgba(59, 130, 246, 0.25); box-shadow: 0 0 20px rgba(59,130,246,0.10); }
+}
+.login-card {
+  background: rgba(10, 10, 14, 0.90);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 16px;
+  box-shadow:
+    0 0 20px rgba(59,130,246,0.10),
+    0 24px 60px rgba(0,0,0,0.70),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  animation: borderGlow 4s ease-in-out infinite;
+}
+
+.role-card {
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease, background 0.15s ease;
+  user-select: none;
+}
+.role-card:hover {
+  border-color: rgba(59,130,246,0.25);
+  background: rgba(59,130,246,0.04);
+}
+.role-card.selected {
+  border-color: rgba(59,130,246,0.50);
+  background: rgba(59,130,246,0.08);
+  box-shadow: 0 0 12px rgba(59,130,246,0.18), inset 0 1px 0 rgba(59,130,246,0.12);
+  transform: translateY(-1px);
+}
+.role-card:active { transform: scale(0.97) translateY(1px); }
+
+.login-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: #c8cdd8;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.login-input::placeholder { color: rgba(200,205,216,0.30); }
+.login-input:focus {
+  border-color: rgba(59,130,246,0.45);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.10), 0 0 12px rgba(59,130,246,0.08);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 9px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 60%, #3b82f6 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.10);
+  transition: box-shadow 0.2s ease, transform 0.12s ease, opacity 0.2s ease;
+}
+.login-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 22px rgba(59,130,246,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+  transform: translateY(-1px);
+}
+.login-btn:active:not(:disabled) { transform: scale(0.98) translateY(1px); }
+.login-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Admin config panel ──────────────────────────────────────── */
+.config-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: #c8cdd8;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.config-input::placeholder { color: rgba(200,205,216,0.28); }
+.config-input:focus {
+  border-color: rgba(59,130,246,0.40);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+}
+.config-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(200,205,216,0.45);
+  margin-bottom: 6px;
+  display: block;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 10px;
+  border-radius: 99px;
+  background: rgba(59,130,246,0.09);
+  border: 1px solid rgba(59,130,246,0.22);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  color: #93c5fd;
+}
+.chip button {
+  line-height: 1;
+  color: rgba(147,197,253,0.55);
+  transition: color 0.12s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.chip button:hover { color: #f87171; }

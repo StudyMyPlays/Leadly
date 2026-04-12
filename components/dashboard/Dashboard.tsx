@@ -9,6 +9,7 @@ import LeadsView from "./LeadsView"
 import PipelineView from "./PipelineView"
 import AnalyticsView from "./AnalyticsView"
 import SettingsView from "./SettingsView"
+import type { DashboardConfig as AdminConfig } from "@/components/admin/AdminConfigPanel"
 
 // Dynamically import particle background to avoid SSR issues
 const ParticleBackground = dynamic(() => import("./ParticleBackground"), { ssr: false })
@@ -16,35 +17,42 @@ const ParticleBackground = dynamic(() => import("./ParticleBackground"), { ssr: 
 // ─────────────────────────────────────────────────────────────────
 // DASHBOARD CONFIG — reskin this for any client
 // ─────────────────────────────────────────────────────────────────
-const DASHBOARD_CONFIG = {
+const DEFAULT_CONFIG = {
   clientName: "Mendez Tree Removal LLC",
-  clientLogo: null,
+  clientLogo: null as string | null,
   accentColor: "#3b82f6",
   currency: "USD",
   services: ["Tree Removal", "Stump Grinding", "Trimming"],
   cities: ["Denver", "Aurora", "Boulder"],
+  ownerEmail: "owner@demo.com",
+  partnerEmail: "partner@demo.com",
+  commissionPerLead: 50,
 }
 // ─────────────────────────────────────────────────────────────────
 
 type Section = "dashboard" | "leads" | "pipeline" | "analytics" | "settings"
 
-export default function Dashboard() {
+interface DashboardProps {
+  role?: "owner" | "partner"
+  userEmail?: string
+  onLogout?: () => void
+  previewConfig?: AdminConfig
+}
+
+export default function Dashboard({ role = "owner", userEmail, onLogout, previewConfig }: DashboardProps) {
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
+
+  // Use previewConfig (from admin panel) if provided, otherwise use default
+  const config = previewConfig ?? DEFAULT_CONFIG
 
   const renderSection = () => {
     switch (activeSection) {
-      case "dashboard":
-        return <DashboardView config={DASHBOARD_CONFIG} />
-      case "leads":
-        return <LeadsView config={DASHBOARD_CONFIG} />
-      case "pipeline":
-        return <PipelineView config={DASHBOARD_CONFIG} />
-      case "analytics":
-        return <AnalyticsView config={DASHBOARD_CONFIG} />
-      case "settings":
-        return <SettingsView config={DASHBOARD_CONFIG} />
-      default:
-        return <DashboardView config={DASHBOARD_CONFIG} />
+      case "dashboard":  return <DashboardView config={config} />
+      case "leads":      return <LeadsView config={config} />
+      case "pipeline":   return <PipelineView config={config} />
+      case "analytics":  return <AnalyticsView config={config} />
+      case "settings":   return <SettingsView config={config} />
+      default:           return <DashboardView config={config} />
     }
   }
 
@@ -62,23 +70,25 @@ export default function Dashboard() {
 
       {/* Layer 2: app chrome */}
       <div className="relative z-10 flex h-full w-full">
-        {/* Sidebar */}
         <Sidebar
           activeSection={activeSection}
           onNavigate={(s) => setActiveSection(s as Section)}
-          clientName={DASHBOARD_CONFIG.clientName}
-          accentColor={DASHBOARD_CONFIG.accentColor}
+          clientName={config.clientName}
+          accentColor={config.accentColor}
+          role={role}
+          userEmail={userEmail}
+          onLogout={onLogout}
         />
 
-        {/* Main */}
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Topbar
             activeSection={activeSection}
-            clientName={DASHBOARD_CONFIG.clientName}
-            accentColor={DASHBOARD_CONFIG.accentColor}
+            clientName={config.clientName}
+            accentColor={config.accentColor}
+            role={role}
+            userEmail={userEmail}
           />
 
-          {/* Scrollable content */}
           <main className="flex-1 overflow-y-auto p-5 md:p-6">
             {renderSection()}
           </main>

@@ -6,6 +6,8 @@ interface TopbarProps {
   activeSection: string
   clientName: string
   accentColor: string
+  role?: "owner" | "partner"
+  userEmail?: string
 }
 
 const SECTION_LABELS: Record<string, string> = {
@@ -16,7 +18,7 @@ const SECTION_LABELS: Record<string, string> = {
   settings:  "Settings",
 }
 
-export default function Topbar({ activeSection, clientName }: TopbarProps) {
+export default function Topbar({ activeSection, clientName, role = "owner", userEmail }: TopbarProps) {
   return (
     <header
       className="flex items-center justify-between px-5 h-12 shrink-0 z-10"
@@ -76,17 +78,30 @@ export default function Topbar({ activeSection, clientName }: TopbarProps) {
           />
         </button>
 
+        {/* Role badge */}
+        <span
+          className="hidden md:inline-block text-xs font-mono px-2 py-0.5 rounded-full capitalize"
+          style={{
+            background: role === "owner" ? "rgba(59,130,246,0.08)" : "rgba(34,197,94,0.07)",
+            border: role === "owner" ? "1px solid rgba(59,130,246,0.20)" : "1px solid rgba(34,197,94,0.20)",
+            color: role === "owner" ? "#93c5fd" : "#4ade80",
+          }}
+        >
+          {role}
+        </span>
+
         {/* Avatar */}
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono cursor-pointer"
+          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono cursor-pointer flex-shrink-0"
           style={{
             background: "rgba(59,130,246,0.14)",
             border: "1px solid rgba(59,130,246,0.28)",
             color: "#93c5fd",
           }}
+          title={userEmail}
           aria-label="User menu"
         >
-          JD
+          {userEmail ? userEmail.charAt(0).toUpperCase() : "U"}
         </div>
       </div>
     </header>

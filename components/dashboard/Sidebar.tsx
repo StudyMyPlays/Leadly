@@ -17,6 +17,9 @@ interface SidebarProps {
   onNavigate: (section: string) => void
   clientName: string
   accentColor: string
+  role?: "owner" | "partner"
+  userEmail?: string
+  onLogout?: () => void
 }
 
 const NAV_ITEMS = [
@@ -27,7 +30,14 @@ const NAV_ITEMS = [
   { id: "settings",  label: "Settings",  icon: Settings },
 ]
 
-export default function Sidebar({ activeSection, onNavigate, clientName }: SidebarProps) {
+export default function Sidebar({
+  activeSection,
+  onNavigate,
+  clientName,
+  role = "owner",
+  userEmail,
+  onLogout,
+}: SidebarProps) {
   const [expanded, setExpanded] = useState(true)
 
   return (
@@ -108,9 +118,26 @@ export default function Sidebar({ activeSection, onNavigate, clientName }: Sideb
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="p-2" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
+      {/* User info + Logout */}
+      <div className="p-2 flex flex-col gap-0.5" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
+        {expanded && userEmail && (
+          <div
+            className="px-2 py-2 rounded-lg mb-1"
+            style={{ background: "rgba(255,255,255,0.02)" }}
+          >
+            <p className="text-xs font-mono truncate" style={{ color: "rgba(200,205,216,0.35)" }}>
+              {userEmail}
+            </p>
+            <p
+              className="text-xs font-mono capitalize mt-0.5"
+              style={{ color: "rgba(96,165,250,0.50)" }}
+            >
+              {role}
+            </p>
+          </div>
+        )}
         <button
+          onClick={onLogout}
           className="nav-item flex items-center gap-3 rounded-lg px-2 py-2.5 w-full text-left"
           style={{ color: "rgba(248,113,113,0.7)" }}
           title={!expanded ? "Logout" : undefined}
