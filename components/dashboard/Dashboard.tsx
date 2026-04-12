@@ -18,12 +18,12 @@ const ParticleBackground = dynamic(() => import("./ParticleBackground"), { ssr: 
 // DASHBOARD CONFIG — reskin this for any client
 // ─────────────────────────────────────────────────────────────────
 const DEFAULT_CONFIG = {
-  clientName: "Mendez Tree Removal LLC",
+  clientName: "My Business",
   clientLogo: null as string | null,
   accentColor: "#3b82f6",
   currency: "USD",
-  services: ["Tree Removal", "Stump Grinding", "Trimming"],
-  cities: ["Denver", "Aurora", "Boulder"],
+  services: ["Consultation", "Installation", "Maintenance", "Emergency"],
+  cities: ["New York", "Los Angeles", "Chicago"],
   ownerEmail: "owner@demo.com",
   partnerEmail: "partner@demo.com",
   commissionPerLead: 50,

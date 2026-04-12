@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 import {
   Lead, LeadStatus, LeadSource,
-  STATUS_CONFIG, SERVICE_COLORS, SOURCE_LABELS,
+  STATUS_CONFIG, SOURCE_LABELS, getServiceColor,
   SAMPLE_LEADS,
 } from "./leads-data"
 
@@ -32,6 +32,7 @@ interface LeadsTableProps {
   onViewLead: (lead: Lead) => void
   onAddLead: () => void
   currency?: string
+  allServices?: string[]
 }
 
 const ALL_STATUSES: LeadStatus[] = ["New", "Contacted", "Estimate", "Converted", "Lost"]
@@ -42,6 +43,7 @@ export default function LeadsTable({
   onViewLead,
   onAddLead,
   currency = "USD",
+  allServices = [],
 }: LeadsTableProps) {
   const [search, setSearch]         = useState("")
   const [statusFilter, setStatus]   = useState<LeadStatus | "All">("All")
@@ -147,18 +149,18 @@ export default function LeadsTable({
           onClick={onAddLead}
           className="flex items-center gap-2 h-9 px-4 rounded-lg text-xs font-semibold font-sans"
           style={{
-            background: "rgba(0,245,255,0.12)",
-            border: "1px solid rgba(0,245,255,0.35)",
-            color: "#00F5FF",
-            boxShadow: "0 0 14px rgba(0,245,255,0.18)",
+            background: "rgba(59,130,246,0.14)",
+            border: "1px solid rgba(59,130,246,0.35)",
+            color: "#93c5fd",
+            boxShadow: "0 0 14px rgba(59,130,246,0.16)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(0,245,255,0.18)"
-            e.currentTarget.style.boxShadow  = "0 0 22px rgba(0,245,255,0.3)"
+            e.currentTarget.style.background = "rgba(59,130,246,0.22)"
+            e.currentTarget.style.boxShadow  = "0 0 22px rgba(59,130,246,0.28)"
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(0,245,255,0.12)"
-            e.currentTarget.style.boxShadow  = "0 0 14px rgba(0,245,255,0.18)"
+            e.currentTarget.style.background = "rgba(59,130,246,0.14)"
+            e.currentTarget.style.boxShadow  = "0 0 14px rgba(59,130,246,0.16)"
           }}
         >
           <Plus size={14} />
@@ -199,6 +201,7 @@ export default function LeadsTable({
                     copied={copied}
                     onCopy={copyPhone}
                     onView={onViewLead}
+                    allServices={allServices.length ? allServices : services}
                   />
                 ))
               )}
@@ -226,9 +229,9 @@ function FilterSelect({
     <div
       className="relative flex items-center gap-1.5 px-3 h-9 rounded-lg cursor-pointer"
       style={{
-        background: isActive ? "rgba(0,245,255,0.08)" : "rgba(255,255,255,0.04)",
-        border: `1px solid ${isActive ? "rgba(0,245,255,0.3)" : "rgba(255,255,255,0.08)"}`,
-        color: isActive ? "#00F5FF" : "rgba(212,216,224,0.5)",
+      background: isActive ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.04)",
+      border: `1px solid ${isActive ? "rgba(59,130,246,0.32)" : "rgba(255,255,255,0.08)"}`,
+      color: isActive ? "#93c5fd" : "rgba(212,216,224,0.5)",
       }}
     >
       <span className="text-xs font-mono whitespace-nowrap">
@@ -250,7 +253,7 @@ function FilterSelect({
 }
 
 function LeadRow({
-  lead, idx, fmt, copied, onCopy, onView,
+  lead, idx, fmt, copied, onCopy, onView, allServices,
 }: {
   lead: Lead
   idx: number
@@ -258,9 +261,10 @@ function LeadRow({
   copied: number | null
   onCopy: (l: Lead) => void
   onView: (l: Lead) => void
+  allServices: string[]
 }) {
   const sc = STATUS_CONFIG[lead.status]
-  const svc = SERVICE_COLORS[lead.service] ?? "#00F5FF"
+  const svc = getServiceColor(lead.service, allServices)
 
   return (
     <tr
@@ -367,7 +371,7 @@ function LeadRow({
           className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100"
           style={{ transition: "opacity 0.15s ease" }}
         >
-          <ActionBtn color="#00F5FF" label="View"    onClick={() => onView(lead)}>
+          <ActionBtn color="#60a5fa" label="View"    onClick={() => onView(lead)}>
             <Eye size={12} />
           </ActionBtn>
           <ActionBtn color="#9B59FF" label="Edit"    onClick={() => onView(lead)}>
@@ -422,8 +426,8 @@ function EmptyState({ hasSearch, onAdd }: { hasSearch: boolean; onAdd: () => voi
           <div
             style={{
               animation: "spin 4s linear infinite",
-              color: "rgba(0,245,255,0.35)",
-              filter: "drop-shadow(0 0 8px rgba(0,245,255,0.2))",
+              color: "rgba(59,130,246,0.45)",
+              filter: "drop-shadow(0 0 8px rgba(59,130,246,0.25))",
             }}
           >
             <Search size={40} strokeWidth={1.2} />
@@ -441,10 +445,10 @@ function EmptyState({ hasSearch, onAdd }: { hasSearch: boolean; onAdd: () => voi
               onClick={onAdd}
               className="flex items-center gap-2 h-9 px-5 rounded-lg text-xs font-semibold font-sans mt-1"
               style={{
-                background: "rgba(0,245,255,0.10)",
-                border: "1px solid rgba(0,245,255,0.3)",
-                color: "#00F5FF",
-                boxShadow: "0 0 18px rgba(0,245,255,0.2)",
+                background: "rgba(59,130,246,0.12)",
+                border: "1px solid rgba(59,130,246,0.32)",
+                color: "#93c5fd",
+                boxShadow: "0 0 18px rgba(59,130,246,0.18)",
               }}
             >
               <Plus size={14} /> Add your first lead

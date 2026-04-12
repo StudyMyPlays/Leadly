@@ -22,14 +22,14 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS }: LeadsViewPro
   const [modalOpen, setModalOpen]       = useState(false)
 
   const handleAddLead = (form: {
-    name: string; city: string; phone: string; service: string
+    name: string; city: string; phone: string; email: string; service: string
     source: Lead["source"]; jobSize: Lead["jobSize"]
-    status: Lead["status"]; notes: string
+    status: Lead["status"]; estValue: number; notes: string
   }) => {
     const newLead: Lead = {
       id: Date.now(),
       ...form,
-      estValue: 0,
+      estValue: form.estValue || 0,
       dateAdded: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
       activity: [
         {
@@ -58,6 +58,7 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS }: LeadsViewPro
         currency={config.currency}
         onViewLead={setSelectedLead}
         onAddLead={() => setModalOpen(true)}
+        allServices={config.services}
       />
 
       <LeadDrawer
