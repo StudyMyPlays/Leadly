@@ -5,7 +5,7 @@ import LoginPage from "@/components/login/LoginPage"
 import Dashboard from "@/components/dashboard/Dashboard"
 
 const CLIENT_CONFIG = {
-  clientName: "Mendez Tree Removal LLC",
+  clientName: "LeadOS",
   accentColor: "#3b82f6",
 }
 

@@ -13,6 +13,7 @@ export interface Lead {
   name: string
   city: string
   phone: string
+  email?: string
   service: string
   source: LeadSource
   jobSize: JobSize
@@ -46,6 +47,21 @@ export function getServiceColor(service: string, allServices: string[]): string 
   const idx = allServices.indexOf(service)
   return SERVICE_COLOR_POOL[idx % SERVICE_COLOR_POOL.length]
 }
+
+// Deterministic lookup: any service name → a stable color from the pool.
+// Used by LeadDrawer where the full service list isn't in scope.
+function hashServiceName(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+export const SERVICE_COLORS = new Proxy({} as Record<string, string>, {
+  get(_target, key: string | symbol) {
+    if (typeof key !== "string") return undefined
+    return SERVICE_COLOR_POOL[hashServiceName(key) % SERVICE_COLOR_POOL.length]
+  },
+})
 
 export const SOURCE_LABELS: Record<LeadSource, string> = {
   "website":    "Website",

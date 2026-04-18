@@ -77,7 +77,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
 
   const handleSubmit = () => {
     if (!validate()) return
-    onAdd?..(form)
+    onAdd?.(form)
     onClose()
   }
 

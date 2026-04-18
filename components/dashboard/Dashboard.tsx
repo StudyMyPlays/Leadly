@@ -41,6 +41,7 @@ interface DashboardProps {
 
 export default function Dashboard({ role = "owner", userEmail, onLogout, previewConfig }: DashboardProps) {
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
+  const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
   // Use previewConfig (from admin panel) if provided, otherwise use default
   const config = previewConfig ?? DEFAULT_CONFIG
@@ -78,6 +79,7 @@ export default function Dashboard({ role = "owner", userEmail, onLogout, preview
           role={role}
           userEmail={userEmail}
           onLogout={onLogout}
+          expanded={sidebarExpanded}
         />
 
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -87,6 +89,8 @@ export default function Dashboard({ role = "owner", userEmail, onLogout, preview
             accentColor={config.accentColor}
             role={role}
             userEmail={userEmail}
+            sidebarExpanded={sidebarExpanded}
+            onToggleSidebar={() => setSidebarExpanded((v) => !v)}
           />
 
           <main className="flex-1 overflow-y-auto p-5 md:p-6">

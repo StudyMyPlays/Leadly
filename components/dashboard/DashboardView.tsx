@@ -34,11 +34,11 @@ const WEEKLY_DATA = [
 ]
 
 const RECENT_LEADS = [
-  { name: "Robert Martinez", service: "Tree Removal", city: "Denver", status: "hot", value: 1850 },
-  { name: "Sarah Kim",       service: "Stump Grinding", city: "Boulder", status: "warm", value: 420 },
-  { name: "James O'Brien",   service: "Trimming",      city: "Aurora", status: "new", value: 310 },
-  { name: "Priya Patel",     service: "Tree Removal", city: "Denver", status: "hot", value: 2200 },
-  { name: "Carlos Rivera",   service: "Trimming",      city: "Boulder", status: "warm", value: 275 },
+  { name: "Robert Martinez", service: "Installation",  city: "New York",    status: "hot",  value: 1850 },
+  { name: "Sarah Kim",       service: "Consultation",  city: "Chicago",     status: "warm", value: 420  },
+  { name: "James O'Brien",   service: "Maintenance",   city: "Los Angeles", status: "new",  value: 310  },
+  { name: "Priya Patel",     service: "Emergency",     city: "New York",    status: "hot",  value: 2200 },
+  { name: "Carlos Rivera",   service: "Maintenance",   city: "Chicago",     status: "warm", value: 275  },
 ]
 
 const STATUS_STYLES: Record<string, string> = {

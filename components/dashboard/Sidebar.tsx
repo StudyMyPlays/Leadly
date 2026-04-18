@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
 import {
   LayoutGrid,
   List,
@@ -8,7 +8,10 @@ import {
   BarChart2,
   Settings,
   LogOut,
-  ChevronRight,
+  Users,
+  GitBranch,
+  Bell,
+  ShieldCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +23,7 @@ interface SidebarProps {
   role?: "owner" | "partner"
   userEmail?: string
   onLogout?: () => void
+  expanded: boolean
 }
 
 const NAV_ITEMS = [
@@ -30,6 +34,16 @@ const NAV_ITEMS = [
   { id: "settings",  label: "Settings",  icon: Settings },
 ]
 
+// Admin is always available to Owners (Owner === admin).
+const ADMIN_ITEMS = [
+  { href: "/admin/users",         label: "User Management", icon: Users },
+  { href: "/admin/routing",       label: "Routing Rules",   icon: GitBranch },
+  { href: "/admin/notifications", label: "Notifications",   icon: Bell },
+]
+
+const EXPANDED_W  = 220
+const COLLAPSED_W = 64
+
 export default function Sidebar({
   activeSection,
   onNavigate,
@@ -37,24 +51,29 @@ export default function Sidebar({
   role = "owner",
   userEmail,
   onLogout,
+  expanded,
 }: SidebarProps) {
-  const [expanded, setExpanded] = useState(true)
+  const isAdmin = role === "owner"
 
   return (
     <aside
-      className="relative flex flex-col h-full transition-all duration-300 ease-in-out"
+      className="relative flex flex-col h-full transition-[width] duration-300 ease-in-out"
       style={{
-        width: expanded ? 220 : 64,
+        width: expanded ? EXPANDED_W : COLLAPSED_W,
         background: "rgba(6, 6, 9, 0.97)",
         borderRight: "1px solid rgba(255, 255, 255, 0.06)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         flexShrink: 0,
       }}
+      aria-label="Primary navigation"
     >
-      {/* Logo row */}
+      {/* Logo row — 48px tall to match topbar */}
       <div
-        className="flex items-center h-12 px-3 gap-3 overflow-hidden"
+        className={cn(
+          "flex items-center h-12 gap-3 overflow-hidden",
+          expanded ? "px-3 justify-start" : "px-0 justify-center",
+        )}
         style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}
       >
         <div
@@ -66,7 +85,7 @@ export default function Sidebar({
             boxShadow: "0 0 10px rgba(59, 130, 246, 0.15)",
           }}
         >
-          {clientName.charAt(0)}
+          {clientName.charAt(0).toUpperCase()}
         </div>
         {expanded && (
           <span
@@ -78,93 +97,153 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex flex-col gap-0.5 p-2 flex-1 mt-2">
-        {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-          const isActive = activeSection === id
-          return (
-            <button
-              key={id}
-              onClick={() => onNavigate(id)}
-              className={cn(
-                "nav-item flex items-center gap-3 rounded-lg px-2 py-2.5 w-full text-left",
-                isActive ? "active" : ""
-              )}
-              style={{
-                color: isActive ? "#93c5fd" : "rgba(200,205,216,0.55)",
-                minHeight: 40,
-              }}
-              title={!expanded ? label : undefined}
-            >
-              <Icon
-                size={17}
-                className="flex-shrink-0"
-                style={{ color: isActive ? "#60a5fa" : "rgba(200,205,216,0.4)" }}
-              />
-              {expanded && (
-                <span className="text-sm font-medium font-sans truncate">{label}</span>
-              )}
-              {expanded && isActive && (
-                <span
-                  className="ml-auto w-1 h-4 rounded-full flex-shrink-0"
-                  style={{
-                    background: "#3b82f6",
-                    boxShadow: "0 0 6px rgba(59,130,246,0.6)",
-                  }}
+      {/* Scrollable nav area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        {/* Workspace nav */}
+        <nav className={cn("flex flex-col gap-0.5", expanded ? "p-2" : "px-2 py-2")}>
+          {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+            const isActive = activeSection === id
+            return (
+              <button
+                key={id}
+                onClick={() => onNavigate(id)}
+                className={cn(
+                  "nav-item flex items-center rounded-lg w-full text-left",
+                  isActive ? "active" : "",
+                  expanded
+                    ? "gap-3 px-2 py-2.5 justify-start"
+                    : "justify-center px-0 py-2.5",
+                )}
+                style={{
+                  color: isActive ? "#93c5fd" : "rgba(200,205,216,0.55)",
+                  minHeight: 40,
+                }}
+                title={!expanded ? label : undefined}
+                aria-label={label}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon
+                  size={17}
+                  className="flex-shrink-0"
+                  style={{ color: isActive ? "#60a5fa" : "rgba(200,205,216,0.4)" }}
                 />
-              )}
-            </button>
-          )
-        })}
-      </nav>
+                {expanded && (
+                  <span className="text-sm font-medium font-sans truncate">{label}</span>
+                )}
+                {expanded && isActive && (
+                  <span
+                    className="ml-auto w-1 h-4 rounded-full flex-shrink-0"
+                    style={{
+                      background: "#3b82f6",
+                      boxShadow: "0 0 6px rgba(59,130,246,0.6)",
+                    }}
+                  />
+                )}
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* Admin section — only rendered for Owner */}
+        {isAdmin && (
+          <div
+            className={cn("pt-2 mt-1", expanded ? "px-2 pb-2" : "px-2 pb-2")}
+            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+          >
+            {expanded ? (
+              <div className="flex items-center gap-1.5 px-2 mb-2 mt-1">
+                <ShieldCheck size={10} style={{ color: "rgba(16,185,129,0.8)" }} />
+                <span
+                  className="text-[10px] font-mono uppercase tracking-[0.12em] font-semibold"
+                  style={{ color: "rgba(16,185,129,0.75)" }}
+                >
+                  Admin
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center mb-1 mt-0.5">
+                <span
+                  className="w-1 h-1 rounded-full"
+                  style={{
+                    background: "rgba(16,185,129,0.8)",
+                    boxShadow: "0 0 6px rgba(16,185,129,0.55)",
+                  }}
+                  aria-hidden="true"
+                />
+              </div>
+            )}
+
+            <div className="flex flex-col gap-0.5">
+              {ADMIN_ITEMS.map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "nav-item flex items-center rounded-lg w-full",
+                    expanded
+                      ? "gap-3 px-2 py-2.5 justify-start"
+                      : "justify-center px-0 py-2.5",
+                  )}
+                  style={{
+                    color: "rgba(200,205,216,0.55)",
+                    minHeight: 40,
+                  }}
+                  title={!expanded ? label : undefined}
+                  aria-label={label}
+                >
+                  <Icon
+                    size={17}
+                    className="flex-shrink-0"
+                    style={{ color: "rgba(16,185,129,0.65)" }}
+                  />
+                  {expanded && (
+                    <span className="text-sm font-medium font-sans truncate">{label}</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* User info + Logout */}
-      <div className="p-2 flex flex-col gap-0.5" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
+      <div
+        className={cn("flex flex-col gap-0.5", expanded ? "p-2" : "px-2 py-2")}
+        style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}
+      >
         {expanded && userEmail && (
           <div
             className="px-2 py-2 rounded-lg mb-1"
             style={{ background: "rgba(255,255,255,0.02)" }}
           >
-            <p className="text-xs font-mono truncate" style={{ color: "rgba(200,205,216,0.35)" }}>
+            <p className="text-xs font-mono truncate" style={{ color: "rgba(200,205,216,0.45)" }}>
               {userEmail}
             </p>
             <p
-              className="text-xs font-mono capitalize mt-0.5"
-              style={{ color: "rgba(96,165,250,0.50)" }}
+              className="text-[11px] font-mono capitalize mt-0.5 flex items-center gap-1"
+              style={{
+                color: isAdmin ? "rgba(16,185,129,0.75)" : "rgba(96,165,250,0.55)",
+              }}
             >
-              {role}
+              {isAdmin && <ShieldCheck size={10} />}
+              {isAdmin ? "owner · admin" : role}
             </p>
           </div>
         )}
         <button
           onClick={onLogout}
-          className="nav-item flex items-center gap-3 rounded-lg px-2 py-2.5 w-full text-left"
+          className={cn(
+            "nav-item flex items-center rounded-lg w-full text-left",
+            expanded ? "gap-3 px-2 py-2.5 justify-start" : "justify-center px-0 py-2.5",
+          )}
           style={{ color: "rgba(248,113,113,0.7)" }}
           title={!expanded ? "Logout" : undefined}
+          aria-label="Logout"
         >
           <LogOut size={17} className="flex-shrink-0" style={{ color: "rgba(248,113,113,0.6)" }} />
           {expanded && <span className="text-sm font-medium font-sans">Logout</span>}
         </button>
       </div>
-
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center z-10"
-        style={{
-          background: "#08080a",
-          border: "1px solid rgba(59,130,246,0.22)",
-          color: "#60a5fa",
-          boxShadow: "0 0 6px rgba(59,130,246,0.15)",
-        }}
-        aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
-      >
-        <ChevronRight
-          size={12}
-          className="transition-transform duration-300"
-          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
-        />
-      </button>
     </aside>
   )
 }
