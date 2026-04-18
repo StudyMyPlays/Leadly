@@ -55,23 +55,23 @@ interface TeamMember {
 // Sample data
 // ─────────────────────────────────────────────────────────────────
 const TEAM: TeamMember[] = [
-  { id: "u_01", name: "Marcus Mendez", email: "marcus@mendeztree.com", role: "Owner" },
-  { id: "u_02", name: "Elena Vargas", email: "elena@growthpartners.io", role: "Partner" },
-  { id: "u_03", name: "Devon Park", email: "devon@growthpartners.io", role: "Partner" },
-  { id: "u_05", name: "Jordan Reeves", email: "jordan@leadscout.co", role: "Partner" },
-  { id: "u_06", name: "Sam Oduya", email: "sam@mendeztree.com", role: "Viewer" },
+  { id: "u_01", name: "Marcus Chen",   email: "marcus@leados.app",          role: "Owner" },
+  { id: "u_02", name: "Elena Vargas",  email: "elena@growthpartners.io",    role: "Partner" },
+  { id: "u_03", name: "Devon Park",    email: "devon@growthpartners.io",    role: "Partner" },
+  { id: "u_05", name: "Jordan Reeves", email: "jordan@leadscout.co",        role: "Partner" },
+  { id: "u_06", name: "Sam Oduya",     email: "sam@leados.app",             role: "Viewer" },
 ]
 
 const INITIAL_RULES: RoutingRule[] = [
   {
     id: "r_01",
-    name: "Austin tree removal — Elena",
+    name: "Austin installations — Elena",
     priority: 1,
     enabled: true,
     join: "AND",
     assignedToId: "u_02",
     conditions: [
-      { id: "c_01", field: "Service", operator: "equals", value: "Tree Removal" },
+      { id: "c_01", field: "Service", operator: "equals", value: "Installation" },
       { id: "c_02", field: "City", operator: "equals", value: "Austin" },
     ],
   },
@@ -1018,7 +1018,7 @@ function RuleDrawer({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Austin tree removal — Elena"
+              placeholder="e.g. Austin installations — Elena"
               className="w-full h-9 px-3 rounded-lg text-sm outline-none transition-colors font-sans"
               style={{
                 background: "rgba(255,255,255,0.04)",
@@ -1334,7 +1334,7 @@ function ConditionRow({
   )
 }
 
-// ─────────────────────────────────────────────────────────────────
+// ────────────────────────────���────────────────────────────────────
 // Native select (styled)
 // ─────────────────────────────────────────────────────────────────
 function NativeSelect({
@@ -1541,7 +1541,7 @@ function UserPicker({
   )
 }
 
-// ─────────────────────────────────────────────────────────────────
+// ──────────────────────────────────���──────────────────────────────
 // Confirm dialog
 // ─────────────────────────────────────────────────────────────────
 function ConfirmDialog({

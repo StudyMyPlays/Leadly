@@ -289,7 +289,7 @@ export default function AdminConfigPanel({ onPreview, onBack }: AdminConfigPanel
                   id="clientName"
                   type="text"
                   className="config-input"
-                  placeholder="Acme Tree Removal LLC"
+                  placeholder="Acme Services LLC"
                   value={cfg.clientName}
                   onChange={(e) => set("clientName", e.target.value)}
                 />
@@ -426,7 +426,7 @@ export default function AdminConfigPanel({ onPreview, onBack }: AdminConfigPanel
             <Section title="Services">
               <ChipInput
                 label="Services Offered"
-                placeholder="e.g. Tree Removal"
+                placeholder="e.g. Installation"
                 items={cfg.services}
                 onAdd={(v) => addTo("services", v)}
                 onRemove={(v) => removeFrom("services", v)}

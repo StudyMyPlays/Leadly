@@ -40,8 +40,8 @@ export interface TeamUser {
 const INITIAL_USERS: TeamUser[] = [
   {
     id: "u_01",
-    name: "Marcus Mendez",
-    email: "marcus@mendeztree.com",
+    name: "Marcus Chen",
+    email: "marcus@leados.app",
     role: "Owner",
     status: "Active",
     lastLogin: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
@@ -67,7 +67,7 @@ const INITIAL_USERS: TeamUser[] = [
   {
     id: "u_04",
     name: "Priya Shah",
-    email: "priya.shah@mendeztree.com",
+    email: "priya.shah@leados.app",
     role: "Viewer",
     status: "Active",
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
@@ -84,7 +84,7 @@ const INITIAL_USERS: TeamUser[] = [
   {
     id: "u_06",
     name: "Sam Oduya",
-    email: "sam@mendeztree.com",
+    email: "sam@leados.app",
     role: "Viewer",
     status: "Active",
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
@@ -109,7 +109,7 @@ const INITIAL_INVITES: PendingInvite[] = [
   },
   {
     id: "i_02",
-    email: "ops@mendeztree.com",
+    email: "ops@leados.app",
     role: "Viewer",
     sentAt: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
   },

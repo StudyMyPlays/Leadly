@@ -22,9 +22,9 @@ const STAGES = [
     count: 18,
     value: 12400,
     cards: [
-      { name: "Robert Martinez", service: "Tree Removal",   city: "Denver", value: 1850 },
-      { name: "Priya Patel",     service: "Tree Removal",   city: "Denver", value: 2200 },
-      { name: "Marcus Johnson",  service: "Stump Grinding", city: "Aurora", value: 390  },
+      { name: "Robert Martinez", service: "Installation",  city: "New York",    value: 1850 },
+      { name: "Priya Patel",     service: "Emergency",     city: "New York",    value: 2200 },
+      { name: "Marcus Johnson",  service: "Consultation",  city: "Los Angeles", value: 390  },
     ],
   },
   {
@@ -34,8 +34,8 @@ const STAGES = [
     count: 12,
     value: 9800,
     cards: [
-      { name: "Sarah Kim",   service: "Stump Grinding", city: "Boulder", value: 420 },
-      { name: "David Park",  service: "Trimming",       city: "Denver",  value: 220 },
+      { name: "Sarah Kim",   service: "Consultation", city: "Chicago",  value: 420 },
+      { name: "David Park",  service: "Maintenance",  city: "New York", value: 220 },
     ],
   },
   {
@@ -45,8 +45,8 @@ const STAGES = [
     count: 8,
     value: 21600,
     cards: [
-      { name: "Olivia Chen",   service: "Tree Removal", city: "Boulder", value: 3100 },
-      { name: "Carlos Rivera", service: "Trimming",     city: "Boulder", value: 275  },
+      { name: "Olivia Chen",   service: "Installation", city: "Chicago",  value: 3100 },
+      { name: "Carlos Rivera", service: "Maintenance",  city: "Chicago",  value: 275  },
     ],
   },
   {
@@ -56,8 +56,8 @@ const STAGES = [
     count: 5,
     value: 14870,
     cards: [
-      { name: "Emily Thompson", service: "Tree Removal",   city: "Denver", value: 1640 },
-      { name: "Natasha Gomez",  service: "Stump Grinding", city: "Aurora", value: 510  },
+      { name: "Emily Thompson", service: "Installation",  city: "New York",    value: 1640 },
+      { name: "Natasha Gomez",  service: "Consultation",  city: "Los Angeles", value: 510  },
     ],
   },
 ]
