@@ -7,6 +7,7 @@ import {
 import LeadsTable from "./LeadsTable"
 import LeadDrawer from "./LeadDrawer"
 import AddLeadModal from "./AddLeadModal"
+import FunnelKPIs from "./FunnelKPIs"
 import { Lead, SAMPLE_LEADS, STATUS_CONFIG } from "./leads-data"
 
 interface LeadsViewProps {
@@ -277,6 +278,9 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS }: LeadsViewPro
         onAddLead={() => setModalOpen(true)}
         allServices={config.services}
       />
+
+      {/* ── Funnel benchmarks + KPI reference ─────────────────── */}
+      <FunnelKPIs />
 
       {/* ── Drawer ────────────────────────────────────────────── */}
       <LeadDrawer
