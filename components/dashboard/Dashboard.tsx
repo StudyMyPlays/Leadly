@@ -11,12 +11,8 @@ import AnalyticsView from "./AnalyticsView"
 import SettingsView from "./SettingsView"
 import type { DashboardConfig as AdminConfig } from "@/components/admin/AdminConfigPanel"
 
-// Dynamically import particle background to avoid SSR issues
 const ParticleBackground = dynamic(() => import("./ParticleBackground"), { ssr: false })
 
-// ─────────────────────────────────────────────────────────────────
-// DASHBOARD CONFIG — reskin this for any client
-// ─────────────────────────────────────────────────────────────────
 const DEFAULT_CONFIG = {
   clientName: "My Business",
   clientLogo: null as string | null,
@@ -28,7 +24,6 @@ const DEFAULT_CONFIG = {
   partnerEmail: "partner@demo.com",
   commissionPerLead: 50,
 }
-// ─────────────────────────────────────────────────────────────────
 
 type Section = "dashboard" | "leads" | "pipeline" | "analytics" | "settings"
 
@@ -43,7 +38,6 @@ export default function Dashboard({ role = "owner", userEmail, onLogout, preview
   const [activeSection, setActiveSection] = useState<Section>("dashboard")
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
 
-  // Use previewConfig (from admin panel) if provided, otherwise use default
   const config = previewConfig ?? DEFAULT_CONFIG
 
   const renderSection = () => {
@@ -59,23 +53,19 @@ export default function Dashboard({ role = "owner", userEmail, onLogout, preview
 
   return (
     <div className="relative flex h-screen w-screen overflow-hidden" style={{ background: "#08080a" }}>
-      {/* Layer 0: animated grid */}
       <div
         className="grid-bg absolute inset-0 pointer-events-none"
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      {/* Layer 1: particles */}
       <ParticleBackground />
 
-      {/* Layer 2: app chrome */}
       <div className="relative z-10 flex h-full w-full">
         <Sidebar
           activeSection={activeSection}
           onNavigate={(s) => setActiveSection(s as Section)}
           clientName={config.clientName}
-          accentColor={config.accentColor}
           role={role}
           userEmail={userEmail}
           onLogout={onLogout}

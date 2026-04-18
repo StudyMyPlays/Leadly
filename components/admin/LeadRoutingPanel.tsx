@@ -19,6 +19,20 @@ import {
   Hash,
   Zap,
 } from "lucide-react"
+import { initials, avatarGradient } from "@/lib/utils"
+import {
+  EMERALD,
+  EMERALD_SOFT,
+  EMERALD_BORDER,
+  EMERALD_GLOW,
+  SLATE_BG,
+  SLATE_PANEL,
+  SLATE_BORDER,
+  SLATE_BORDER_STRONG,
+  TEXT,
+  TEXT_DIM,
+  TEXT_MUTE,
+} from "@/lib/tokens"
 
 // ─────────────────────────────────────────────────────────────────
 // Types
@@ -101,23 +115,8 @@ const INITIAL_RULES: RoutingRule[] = [
   },
 ]
 
-// ─────────────────────────────────────────────────────────────────
-// Tokens (scoped to this panel)
-// ─────────────────────────────────────────────────────────────────
-const EMERALD = "#10b981"
 const EMERALD_BRIGHT = "#34d399"
-const EMERALD_SOFT = "rgba(16,185,129,0.10)"
-const EMERALD_BORDER = "rgba(16,185,129,0.28)"
-const EMERALD_GLOW = "0 0 0 1px rgba(16,185,129,0.22), 0 0 20px rgba(16,185,129,0.18)"
-
-const SLATE_BG = "#0b0f14"
-const SLATE_PANEL = "rgba(17,23,31,0.92)"
 const SLATE_PANEL_SOLID = "#11171f"
-const SLATE_BORDER = "rgba(255,255,255,0.06)"
-const SLATE_BORDER_STRONG = "rgba(255,255,255,0.10)"
-const TEXT = "#e2e8f0"
-const TEXT_DIM = "rgba(226,232,240,0.55)"
-const TEXT_MUTE = "rgba(226,232,240,0.35)"
 
 const FIELD_OPTIONS: ConditionField[] = ["Service", "City", "Source", "Lead Size", "Time of Day"]
 const OPERATOR_OPTIONS: ConditionOperator[] = ["equals", "contains", "greater than"]
@@ -125,29 +124,8 @@ const OPERATOR_OPTIONS: ConditionOperator[] = ["equals", "contains", "greater th
 // ─────────────────────────────────────────────────────────────────
 // Utilities
 // ─────────────────────────────────────────────────────────────────
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("")
-}
-
-function avatarGradient(name: string) {
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
-  const hue = Math.abs(h) % 360
-  return `linear-gradient(135deg, hsl(${hue} 55% 28%) 0%, hsl(${(hue + 40) % 360} 55% 20%) 100%)`
-}
-
 function uid(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`
-}
-
-function summarizeCondition(c: Condition) {
-  const value = c.value.trim() || "—"
-  return `${c.field} ${c.operator} ${value}`
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -170,7 +148,7 @@ export default function LeadRoutingPanel({ onBack }: LeadRoutingPanelProps) {
 
   const showToast = (msg: string) => {
     setToast(msg)
-    window.setTimeout(() => setToast(null), 2400)
+    setTimeout(() => setToast(null), 2400)
   }
 
   const sorted = useMemo(
@@ -491,10 +469,6 @@ function RuleCard({
   onEdit: () => void
   onDelete: () => void
 }) {
-  const summary = rule.conditions
-    .map(summarizeCondition)
-    .join(`  ${rule.join}  `)
-
   return (
     <div
       draggable

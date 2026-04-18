@@ -19,7 +19,6 @@ interface SidebarProps {
   activeSection: string
   onNavigate: (section: string) => void
   clientName: string
-  accentColor: string
   role?: "owner" | "partner"
   userEmail?: string
   onLogout?: () => void
@@ -53,6 +52,7 @@ export default function Sidebar({
   onLogout,
   expanded,
 }: SidebarProps) {
+
   const isAdmin = role === "owner"
 
   return (
@@ -147,7 +147,7 @@ export default function Sidebar({
         {/* Admin section — only rendered for Owner */}
         {isAdmin && (
           <div
-            className={cn("pt-2 mt-1", expanded ? "px-2 pb-2" : "px-2 pb-2")}
+            className="pt-2 mt-1 px-2 pb-2"
             style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
           >
             {expanded ? (

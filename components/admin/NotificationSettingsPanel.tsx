@@ -22,22 +22,19 @@ import {
   Boxes,
   ExternalLink,
 } from "lucide-react"
-
-// ─────────────────────────────────────────────────────────────────
-// Design tokens (scoped — same system as UserManagement / Routing)
-// ─────────────────────────────────────────────────────────────────
-const EMERALD = "#10b981"
-const EMERALD_SOFT = "rgba(16,185,129,0.10)"
-const EMERALD_BORDER = "rgba(16,185,129,0.28)"
-const EMERALD_GLOW = "0 0 0 1px rgba(16,185,129,0.22), 0 0 20px rgba(16,185,129,0.14)"
-
-const SLATE_BG = "#0b0f14"
-const SLATE_PANEL = "rgba(17,23,31,0.92)"
-const SLATE_BORDER = "rgba(255,255,255,0.06)"
-const SLATE_BORDER_STRONG = "rgba(255,255,255,0.10)"
-const TEXT = "#e2e8f0"
-const TEXT_DIM = "rgba(226,232,240,0.55)"
-const TEXT_MUTE = "rgba(226,232,240,0.35)"
+import {
+  EMERALD,
+  EMERALD_SOFT,
+  EMERALD_BORDER,
+  EMERALD_GLOW,
+  SLATE_BG,
+  SLATE_PANEL,
+  SLATE_BORDER,
+  SLATE_BORDER_STRONG,
+  TEXT,
+  TEXT_DIM,
+  TEXT_MUTE,
+} from "@/lib/tokens"
 
 // ─────────────────────────────────────────────────────────────────
 // Types
@@ -281,7 +278,7 @@ export default function NotificationSettingsPanel({
   const pushToast = (tone: Toast["tone"], text: string) => {
     const id = Date.now() + Math.random()
     setToasts((p) => [...p, { id, tone, text }])
-    window.setTimeout(() => {
+    setTimeout(() => {
       setToasts((p) => p.filter((t) => t.id !== id))
     }, 3200)
   }
@@ -302,9 +299,10 @@ export default function NotificationSettingsPanel({
   }
 
   const isValidUrl = useMemo(() => {
-    if (!webhookUrl.trim()) return false
+    const trimmed = webhookUrl.trim()
+    if (!trimmed) return false
     try {
-      const u = new URL(webhookUrl.trim())
+      const u = new URL(trimmed)
       return u.protocol === "http:" || u.protocol === "https:"
     } catch {
       return false

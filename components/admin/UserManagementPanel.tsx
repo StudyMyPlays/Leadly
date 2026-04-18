@@ -20,6 +20,20 @@ import {
   CircleSlash,
   Percent,
 } from "lucide-react"
+import { initials, avatarGradient } from "@/lib/utils"
+import {
+  EMERALD,
+  EMERALD_SOFT,
+  EMERALD_BORDER,
+  EMERALD_GLOW,
+  SLATE_BG,
+  SLATE_PANEL,
+  SLATE_BORDER,
+  SLATE_BORDER_STRONG,
+  TEXT,
+  TEXT_DIM,
+  TEXT_MUTE,
+} from "@/lib/tokens"
 
 // ─────────────────────────────────────────────────────────────────
 // Types & data
@@ -115,22 +129,7 @@ const INITIAL_INVITES: PendingInvite[] = [
   },
 ]
 
-// ─────────────────────────────────────────────────────────────────
-// Design tokens (scoped to this panel)
-// ─────────────────────────────────────────────────────────────────
-const EMERALD = "#10b981"
-const EMERALD_SOFT = "rgba(16,185,129,0.10)"
-const EMERALD_BORDER = "rgba(16,185,129,0.28)"
-const EMERALD_GLOW = "0 0 0 1px rgba(16,185,129,0.22), 0 0 20px rgba(16,185,129,0.18)"
-
-const SLATE_BG = "#0b0f14"
-const SLATE_PANEL = "rgba(17,23,31,0.92)"
 const SLATE_ROW_HOVER = "rgba(16,185,129,0.04)"
-const SLATE_BORDER = "rgba(255,255,255,0.06)"
-const SLATE_BORDER_STRONG = "rgba(255,255,255,0.10)"
-const TEXT = "#e2e8f0"
-const TEXT_DIM = "rgba(226,232,240,0.55)"
-const TEXT_MUTE = "rgba(226,232,240,0.35)"
 
 const ROLE_META: Record<UserRole, { icon: typeof ShieldCheck; color: string; bg: string; border: string }> = {
   Owner: {
@@ -156,15 +155,6 @@ const ROLE_META: Record<UserRole, { icon: typeof ShieldCheck; color: string; bg:
 // ─────────────────────────────────────────────────────────────────
 // Utilities
 // ─────────────────────────────────────────────────────────────────
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("")
-}
-
 function formatRelative(iso: string) {
   const ms = Date.now() - new Date(iso).getTime()
   const m = Math.floor(ms / 60000)
@@ -178,14 +168,6 @@ function formatRelative(iso: string) {
   if (w < 5) return `${w}w ago`
   const mo = Math.floor(d / 30)
   return `${mo}mo ago`
-}
-
-// Deterministic avatar color from name
-function avatarGradient(name: string) {
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
-  const hue = Math.abs(h) % 360
-  return `linear-gradient(135deg, hsl(${hue} 55% 28%) 0%, hsl(${(hue + 40) % 360} 55% 20%) 100%)`
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -209,7 +191,7 @@ export default function UserManagementPanel({ onBack }: UserManagementPanelProps
 
   const showToast = (msg: string) => {
     setToast(msg)
-    window.setTimeout(() => setToast(null), 2400)
+    setTimeout(() => setToast(null), 2400)
   }
 
   const filtered = useMemo(() => {
@@ -837,7 +819,7 @@ function UserRow({
         <div className="relative inline-block">
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            onBlur={() => window.setTimeout(() => setMenuOpen(false), 120)}
+            onBlur={() => setTimeout(() => setMenuOpen(false), 120)}
             className="flex h-8 w-8 items-center justify-center rounded-md transition-colors"
             style={{
               background: menuOpen ? "rgba(255,255,255,0.06)" : "transparent",
@@ -1055,6 +1037,8 @@ function EmptyState({
 // ─────────────────────────────────────────────────────────────────
 // Invite modal
 // ─────────────────────────────────────────────────────────────────
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function InviteModal({
   onClose,
   onSend,
@@ -1069,8 +1053,9 @@ function InviteModal({
   const [commission, setCommission] = useState<string>("10")
   const [error, setError] = useState<string | null>(null)
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-  const emailTaken = existingEmails.has(email.trim().toLowerCase())
+  const trimmedEmail = email.trim()
+  const emailValid = EMAIL_RE.test(trimmedEmail)
+  const emailTaken = existingEmails.has(trimmedEmail.toLowerCase())
   const commissionNum = Number(commission)
   const commissionValid =
     role !== "Partner" ||
@@ -1085,7 +1070,7 @@ function InviteModal({
     if (emailTaken) return setError("That email is already a user or has a pending invite.")
     if (!commissionValid) return setError("Commission rate must be between 0 and 100.")
     onSend(
-      email.trim(),
+      trimmedEmail,
       role,
       role === "Partner" ? commissionNum : undefined,
     )
