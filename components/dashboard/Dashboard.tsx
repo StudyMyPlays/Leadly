@@ -9,7 +9,6 @@ import LeadsView from "./LeadsView"
 import PipelineView from "./PipelineView"
 import AnalyticsView from "./AnalyticsView"
 import SettingsView from "./SettingsView"
-import UserManagementPanel from "@/components/admin/UserManagementPanel"
 import type { DashboardConfig as AdminConfig } from "@/components/admin/AdminConfigPanel"
 
 // Dynamically import particle background to avoid SSR issues
@@ -31,7 +30,7 @@ const DEFAULT_CONFIG = {
 }
 // ─────────────────────────────────────────────────────────────────
 
-type Section = "dashboard" | "leads" | "pipeline" | "analytics" | "users" | "settings"
+type Section = "dashboard" | "leads" | "pipeline" | "analytics" | "settings"
 
 interface DashboardProps {
   role?: "owner" | "partner"
@@ -53,7 +52,6 @@ export default function Dashboard({ role = "owner", userEmail, onLogout, preview
       case "leads":      return <LeadsView config={config} />
       case "pipeline":   return <PipelineView config={config} />
       case "analytics":  return <AnalyticsView config={config} />
-      case "users":      return <UserManagementPanel />
       case "settings":   return <SettingsView config={config} />
       default:           return <DashboardView config={config} />
     }

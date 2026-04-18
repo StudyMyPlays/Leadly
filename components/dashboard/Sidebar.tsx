@@ -5,7 +5,6 @@ import {
   List,
   Filter,
   BarChart2,
-  Users,
   Settings,
   LogOut,
 } from "lucide-react"
@@ -27,7 +26,6 @@ const NAV_ITEMS = [
   { id: "leads",     label: "All Leads", icon: List },
   { id: "pipeline",  label: "Pipeline",  icon: Filter },
   { id: "analytics", label: "Analytics", icon: BarChart2 },
-  { id: "users",     label: "Users",     icon: Users },
   { id: "settings",  label: "Settings",  icon: Settings },
 ]
 
@@ -37,6 +35,7 @@ const COLLAPSED_W = 64
 export default function Sidebar({
   activeSection,
   onNavigate,
+  clientName,
   role = "owner",
   userEmail,
   onLogout,
@@ -55,55 +54,31 @@ export default function Sidebar({
       }}
       aria-label="Primary navigation"
     >
-      {/* Wordmark row — 48px tall to match topbar */}
+      {/* Logo row — 48px tall to match topbar */}
       <div
         className={cn(
-          "flex items-center h-12 overflow-hidden",
-          expanded ? "px-4 justify-start" : "px-0 justify-center",
+          "flex items-center h-12 gap-3 overflow-hidden",
+          expanded ? "px-3 justify-start" : "px-0 justify-center",
         )}
         style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}
       >
-        {expanded ? (
-          <div className="flex items-baseline gap-2 leading-none select-none">
-            <span
-              className="text-[9px] font-mono uppercase"
-              style={{
-                color: "rgba(200,205,216,0.38)",
-                letterSpacing: "0.22em",
-              }}
-            >
-              Built by
-            </span>
-            <span
-              className="text-[15px] font-sans font-semibold"
-              style={{
-                color: "#e8ecf4",
-                letterSpacing: "0.28em",
-                background:
-                  "linear-gradient(180deg, #f5f7fb 0%, #b8bfcc 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              SMV
-            </span>
-          </div>
-        ) : (
+        <div
+          className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold font-mono"
+          style={{
+            background: "rgba(59, 130, 246, 0.12)",
+            border: "1px solid rgba(59, 130, 246, 0.28)",
+            color: "#60a5fa",
+            boxShadow: "0 0 10px rgba(59, 130, 246, 0.15)",
+          }}
+        >
+          {clientName.charAt(0).toUpperCase()}
+        </div>
+        {expanded && (
           <span
-            className="text-[11px] font-sans font-semibold select-none"
-            style={{
-              color: "#e8ecf4",
-              letterSpacing: "0.24em",
-              background:
-                "linear-gradient(180deg, #f5f7fb 0%, #b8bfcc 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-            title="Built by SMV"
+            className="text-sm font-semibold font-sans truncate"
+            style={{ color: "#c8cdd8" }}
           >
-            SMV
+            {clientName}
           </span>
         )}
       </div>
