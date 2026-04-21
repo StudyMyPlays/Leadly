@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import { X, Plus, UserPlus } from "lucide-react"
+import { X, Plus, UserPlus, ChevronDown } from "lucide-react"
 import { LeadStatus, LeadSource, JobSize } from "./leads-data"
 
 interface AddLeadModalProps {
@@ -37,10 +37,8 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
   const [mounted, setMounted] = useState(false)
   const firstInputRef         = useRef<HTMLInputElement>(null)
 
-  // Need client mount for portal
   useEffect(() => { setMounted(true) }, [])
 
-  // Focus first input when opened
   useEffect(() => {
     if (open) {
       setTimeout(() => firstInputRef.current?.focus(), 60)
@@ -50,7 +48,6 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
     }
   }, [open])
 
-  // Close on Escape
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
@@ -106,7 +103,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
           left: "50%",
           top: "50%",
           transform: "translate(-50%, -50%)",
-          width: "min(540px, 95vw)",
+          width: "min(560px, 95vw)",
           maxHeight: "90vh",
           overflowY: "auto",
           background: "#0c0c10",
@@ -123,27 +120,35 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
         >
           <div className="flex items-center gap-2.5">
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              className="flex items-center justify-center"
               style={{
+                width: 30, height: 30,
+                borderRadius: 8,
                 background: "rgba(59,130,246,0.14)",
                 border: "1px solid rgba(59,130,246,0.32)",
                 color: "#60a5fa",
               }}
             >
-              <UserPlus size={13} />
+              <UserPlus size={14} />
             </div>
-            <h2 className="text-sm font-semibold font-sans" style={{ color: "#d4d8e0" }}>
-              Add New Lead
-            </h2>
+            <div>
+              <h2 className="text-sm font-semibold font-sans leading-none" style={{ color: "#e2e8f0" }}>
+                Add New Lead
+              </h2>
+              <p className="text-[10px] font-mono uppercase tracking-wider mt-1" style={{ color: "rgba(226,232,240,0.38)" }}>
+                Capture · Qualify · Route
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            className="flex items-center justify-center"
             style={{
-              background: "rgba(255,255,255,0.05)",
+              width: 28, height: 28, borderRadius: 8,
+              background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.08)",
-              color: "rgba(212,216,224,0.45)",
+              color: "rgba(226,232,240,0.5)",
               cursor: "pointer",
             }}
           >
@@ -155,7 +160,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
         <div className="px-6 py-5 flex flex-col gap-4">
 
           {/* Row 1: Full Name + Phone */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Full Name" error={errors.name} required>
               <input
                 ref={firstInputRef}
@@ -189,7 +194,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
           </Field>
 
           {/* Row 3: Service + City */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Service" error={errors.service} required>
               <>
                 <input
@@ -229,29 +234,33 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
           </div>
 
           {/* Row 4: Source + Status */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Lead Source">
-              <select
-                value={form.source}
-                onChange={(e) => set("source", e.target.value)}
-                style={selectCss()}
-              >
-                {SOURCES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
+              <SelectWrapper>
+                <select
+                  value={form.source}
+                  onChange={(e) => set("source", e.target.value)}
+                  style={selectCss()}
+                >
+                  {SOURCES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </SelectWrapper>
             </Field>
             <Field label="Status">
-              <select
-                value={form.status}
-                onChange={(e) => set("status", e.target.value)}
-                style={selectCss()}
-              >
-                {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <SelectWrapper>
+                <select
+                  value={form.status}
+                  onChange={(e) => set("status", e.target.value)}
+                  style={selectCss()}
+                >
+                  {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </SelectWrapper>
             </Field>
           </div>
 
           {/* Row 5: Job Size + Est. Value */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Job Size">
               <div className="flex gap-2">
                 {JOB_SIZES.map((size) => (
@@ -261,16 +270,16 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
                     onClick={() => set("jobSize", size)}
                     style={{
                       flex: 1,
-                      padding: "8px 0",
+                      height: 38,
                       borderRadius: 8,
                       fontSize: 12,
                       fontWeight: 700,
                       fontFamily: "var(--font-mono)",
                       cursor: "pointer",
-                      background: form.jobSize === size ? "rgba(255,184,0,0.14)" : "rgba(255,255,255,0.04)",
-                      border: form.jobSize === size ? "1px solid rgba(255,184,0,0.40)" : "1px solid rgba(255,255,255,0.08)",
-                      color: form.jobSize === size ? "#FFB800" : "rgba(212,216,224,0.38)",
-                      boxShadow: form.jobSize === size ? "0 0 8px rgba(255,184,0,0.18)" : "none",
+                      background: form.jobSize === size ? "rgba(245,158,11,0.14)" : "rgba(255,255,255,0.04)",
+                      border: form.jobSize === size ? "1px solid rgba(245,158,11,0.40)" : "1px solid rgba(255,255,255,0.08)",
+                      color: form.jobSize === size ? "#f59e0b" : "rgba(226,232,240,0.38)",
+                      boxShadow: form.jobSize === size ? "0 0 8px rgba(245,158,11,0.18)" : "none",
                       transition: "all 0.12s ease",
                     }}
                   >
@@ -280,14 +289,25 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
               </div>
             </Field>
             <Field label="Est. Value (optional)">
-              <input
-                type="number"
-                min={0}
-                placeholder="0"
-                value={form.estValue || ""}
-                onChange={(e) => set("estValue", Number(e.target.value) || 0)}
-                style={inputCss(false)}
-              />
+              <div style={{ position: "relative" }}>
+                <span
+                  style={{
+                    position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
+                    fontSize: 12, fontFamily: "var(--font-mono)",
+                    color: "rgba(226,232,240,0.35)",
+                  }}
+                >
+                  $
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  value={form.estValue || ""}
+                  onChange={(e) => set("estValue", Number(e.target.value) || 0)}
+                  style={{ ...inputCss(false), paddingLeft: 24 }}
+                />
+              </div>
             </Field>
           </div>
 
@@ -298,7 +318,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
               placeholder="Any additional details about this lead…"
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
-              style={{ ...inputCss(false), resize: "none" }}
+              style={{ ...inputCss(false), resize: "none", lineHeight: 1.5 }}
             />
           </Field>
         </div>
@@ -315,7 +335,7 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
               fontSize: 12, fontWeight: 500, fontFamily: "var(--font-sans)",
               background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.08)",
-              color: "rgba(212,216,224,0.5)",
+              color: "rgba(226,232,240,0.55)",
               cursor: "pointer",
             }}
           >
@@ -362,11 +382,43 @@ function Field({
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.05em", textTransform: "uppercase", color: "rgba(212,216,224,0.42)" }}>
+      <label
+        style={{
+          fontSize: 10,
+          fontFamily: "var(--font-mono)",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "rgba(226,232,240,0.42)",
+        }}
+      >
         {label}{required && <span style={{ color: "#f87171", marginLeft: 2 }}>*</span>}
       </label>
       {children}
-      {error && <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#f87171" }}>{error}</span>}
+      {error && (
+        <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#f87171" }}>
+          {error}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// ── Select wrapper with chevron ─────────────────────────────────
+function SelectWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ position: "relative" }}>
+      {children}
+      <ChevronDown
+        size={14}
+        style={{
+          position: "absolute",
+          right: 10,
+          top: "50%",
+          transform: "translateY(-50%)",
+          color: "rgba(226,232,240,0.4)",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   )
 }
@@ -374,13 +426,14 @@ function Field({
 // ── Style helpers ────────────────────────────────────────────────
 const inputCss = (hasError: boolean): React.CSSProperties => ({
   width: "100%",
+  height: 38,
   background: "rgba(255,255,255,0.04)",
   border: `1px solid ${hasError ? "rgba(248,113,113,0.40)" : "rgba(255,255,255,0.09)"}`,
   borderRadius: 8,
-  padding: "9px 12px",
-  fontSize: 12,
+  padding: "0 12px",
+  fontSize: 13,
   fontFamily: "var(--font-sans)",
-  color: "#d4d8e0",
+  color: "#e2e8f0",
   outline: "none",
   boxSizing: "border-box",
   transition: "border-color 0.15s ease, box-shadow 0.15s ease",
@@ -391,4 +444,6 @@ const selectCss = (): React.CSSProperties => ({
   cursor: "pointer",
   appearance: "none",
   WebkitAppearance: "none",
+  MozAppearance: "none",
+  paddingRight: 32,
 })
