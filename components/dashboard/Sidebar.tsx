@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { useCallback } from "react"
 import {
   LayoutGrid,
-  List,
   Filter,
   BarChart2,
   Settings,
@@ -27,8 +26,7 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
-  { id: "leads",     label: "All Leads", icon: List },
+  { id: "dashboard", label: "Leads",     icon: LayoutGrid },
   { id: "pipeline",  label: "Pipeline",  icon: Filter },
   { id: "analytics", label: "Analytics", icon: BarChart2 },
 ]

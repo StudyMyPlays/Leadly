@@ -64,10 +64,10 @@ export const STATUS_CONFIG: Record<LeadStatus, { label: string; badge: string; c
   Lost:      { label: "Lost",      badge: "badge-dim",    color: "rgba(212,216,224,0.35)" },
 }
 
-export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string }> = {
-  High:   { label: "High",   color: "#ff4455" },
-  Medium: { label: "Medium", color: "#FFB800" },
-  Low:    { label: "Low",    color: "#60a5fa" },
+export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; bg: string; border: string }> = {
+  High:   { label: "High",   color: "#ff4455", bg: "rgba(255,68,85,0.12)",  border: "rgba(255,68,85,0.38)" },
+  Medium: { label: "Medium", color: "#FFB800", bg: "rgba(255,184,0,0.12)",  border: "rgba(255,184,0,0.38)" },
+  Low:    { label: "Low",    color: "#60a5fa", bg: "rgba(96,165,250,0.12)", border: "rgba(96,165,250,0.38)" },
 }
 
 export const SOURCE_LABELS: Record<LeadSource, string> = {

@@ -15,7 +15,7 @@ const ACTIVE_SECTION_KEY = "leadosActiveSection"
 
 type Session = { role: "owner" | "partner"; email: string }
 
-const VALID_SECTIONS = new Set(["dashboard", "leads", "pipeline", "analytics"])
+const VALID_SECTIONS = new Set(["dashboard", "pipeline", "analytics"])
 
 export default function Home() {
   const router = useRouter()

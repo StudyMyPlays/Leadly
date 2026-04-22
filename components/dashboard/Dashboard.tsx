@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Sidebar from "./Sidebar"
 import Topbar from "./Topbar"
-import DashboardView from "./DashboardView"
 import LeadsView from "./LeadsView"
 import PipelineView from "./PipelineView"
 import AnalyticsView from "./AnalyticsView"
@@ -32,8 +31,8 @@ const DEFAULT_CONFIG = {
   commissionPerLead: 50,
 }
 
-type Section = "dashboard" | "leads" | "pipeline" | "analytics"
-const VALID_SECTIONS: Section[] = ["dashboard", "leads", "pipeline", "analytics"]
+type Section = "dashboard" | "pipeline" | "analytics"
+const VALID_SECTIONS: Section[] = ["dashboard", "pipeline", "analytics"]
 
 function normalizeSection(value: string | undefined): Section {
   return VALID_SECTIONS.includes(value as Section) ? (value as Section) : "dashboard"
@@ -96,11 +95,10 @@ export default function Dashboard({
 
   const renderSection = () => {
     switch (activeSection) {
-      case "dashboard":  return <DashboardView config={config} />
-      case "leads":      return <LeadsView config={config} addNotification={addNotification} />
+      case "dashboard":  return <LeadsView config={config} addNotification={addNotification} />
       case "pipeline":   return <PipelineView config={config} />
       case "analytics":  return <AnalyticsView config={config} />
-      default:           return <DashboardView config={config} />
+      default:           return <LeadsView config={config} addNotification={addNotification} />
     }
   }
 

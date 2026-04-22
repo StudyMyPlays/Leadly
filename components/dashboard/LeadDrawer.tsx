@@ -5,11 +5,12 @@ import { createPortal } from "react-dom"
 import {
   X, Phone, Mail, MapPin, Globe, Users, PhoneCall, Clock,
   FileText, Activity, Pencil, Save, RotateCcw, Trash2, AlertCircle,
-  DollarSign, Check, Copy,
+  DollarSign, Check, Copy, Building2, Flame, Calendar, Target,
+  FileCheck, MessageSquare, ListFilter, Search, Tag, Send, Briefcase,
 } from "lucide-react"
 import {
-  Lead, LeadStatus, LeadSource, JobSize,
-  STATUS_CONFIG, SERVICE_COLORS, SOURCE_LABELS,
+  Lead, LeadStatus, LeadSource, JobSize, Priority,
+  STATUS_CONFIG, PRIORITY_CONFIG, getServiceColor,
 } from "./leads-data"
 
 interface LeadDrawerProps {
@@ -28,8 +29,14 @@ const ALL_SOURCES: { value: LeadSource; label: string }[] = [
   { value: "referral",   label: "Referral" },
   { value: "door-knock", label: "Door Knock" },
   { value: "call-in",    label: "Call-In" },
+  { value: "craigslist", label: "Craigslist" },
+  { value: "google",     label: "Google / SEO" },
+  { value: "signage",    label: "Signage" },
+  { value: "jobboard",   label: "Job Board" },
+  { value: "other",      label: "Other" },
 ]
 const JOB_SIZES: JobSize[] = ["$", "$$", "$$$"]
+const ALL_PRIORITIES: Priority[] = ["High", "Medium", "Low"]
 
 export default function LeadDrawer({
   lead,
@@ -67,15 +74,23 @@ export default function LeadDrawer({
   const isDirty = useMemo(() => {
     if (!lead || !draft) return false
     return (
-      draft.name      !== lead.name      ||
-      draft.phone     !== lead.phone     ||
-      draft.city      !== lead.city      ||
-      draft.service   !== lead.service   ||
-      draft.source    !== lead.source    ||
-      draft.jobSize   !== lead.jobSize   ||
-      draft.status    !== lead.status    ||
-      draft.estValue  !== lead.estValue  ||
-      draft.notes     !== lead.notes
+      draft.name            !== lead.name            ||
+      draft.businessName    !== lead.businessName    ||
+      draft.phone           !== lead.phone           ||
+      draft.email           !== lead.email           ||
+      draft.city            !== lead.city            ||
+      draft.service         !== lead.service         ||
+      draft.source          !== lead.source          ||
+      draft.jobSize         !== lead.jobSize         ||
+      draft.status          !== lead.status          ||
+      draft.priority        !== lead.priority        ||
+      draft.estValue        !== lead.estValue        ||
+      draft.quoteAmount     !== lead.quoteAmount     ||
+      draft.quoteSent       !== lead.quoteSent       ||
+      draft.lastContactDate !== lead.lastContactDate ||
+      draft.nextActionDate  !== lead.nextActionDate  ||
+      draft.nextActionLabel !== lead.nextActionLabel ||
+      draft.notes           !== lead.notes
     )
   }, [lead, draft])
 
@@ -161,7 +176,8 @@ export default function LeadDrawer({
   if (!mounted || (!lead && !closing) || !draft) return null
 
   const sc       = STATUS_CONFIG[draft.status]
-  const svcColor = SERVICE_COLORS[draft.service] ?? "#60a5fa"
+  const svcColor = getServiceColor(draft.service, services)
+  const pri      = draft.priority ? PRIORITY_CONFIG[draft.priority] : null
   const fmt      = (n: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency", currency, maximumFractionDigits: 0,
@@ -243,6 +259,17 @@ export default function LeadDrawer({
               style={{ color: "#eaecef" }}
               aria-label="Lead name"
             />
+            {draft.businessName ? (
+              <div className="flex items-center gap-1.5">
+                <Building2 size={10} style={{ color: "rgba(212,216,224,0.45)" }} />
+                <span
+                  className="text-[12px] font-sans truncate"
+                  style={{ color: "rgba(212,216,224,0.78)" }}
+                >
+                  {draft.businessName}
+                </span>
+              </div>
+            ) : null}
             <div className="flex items-center gap-2 flex-wrap">
               <span
                 className="inline-flex items-center gap-1 text-[11px] font-mono"
@@ -263,6 +290,19 @@ export default function LeadDrawer({
               <span className={`${sc.badge} badge-3d inline-block px-2 py-0.5 rounded-full text-[11px]`}>
                 {sc.label}
               </span>
+              {pri && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider"
+                  style={{
+                    background: pri.bg,
+                    border: `1px solid ${pri.border}`,
+                    color: pri.color,
+                  }}
+                >
+                  {draft.priority === "High" && <Flame size={9} />}
+                  {pri.label}
+                </span>
+              )}
             </div>
           </div>
           <button
@@ -373,6 +413,7 @@ export default function LeadDrawer({
               cities={cities}
               copied={copied}
               onCopy={copyField}
+              currency={currency}
             />
           )}
 
@@ -608,7 +649,7 @@ function StatCell({
 }
 
 function InfoTab({
-  draft, patch, services, cities, copied, onCopy,
+  draft, patch, services, cities, copied, onCopy, currency,
 }: {
   draft: Lead
   patch: <K extends keyof Lead>(k: K, v: Lead[K]) => void
@@ -616,17 +657,39 @@ function InfoTab({
   cities: string[]
   copied: "phone" | "email" | null
   onCopy: (kind: "phone" | "email", value: string) => void
+  currency: string
 }) {
   const sourceIcon = (s: LeadSource) => {
     const p = { size: 12, style: { color: "rgba(212,216,224,0.5)" } }
-    if (s === "website")    return <Globe    {...p} />
-    if (s === "referral")   return <Users    {...p} />
-    if (s === "door-knock") return <MapPin   {...p} />
-    return                         <PhoneCall {...p} />
+    if (s === "website")    return <Globe     {...p} />
+    if (s === "referral")   return <Users     {...p} />
+    if (s === "door-knock") return <MapPin    {...p} />
+    if (s === "call-in")    return <PhoneCall {...p} />
+    if (s === "craigslist") return <ListFilter {...p} />
+    if (s === "google")     return <Search    {...p} />
+    if (s === "signage")    return <Tag       {...p} />
+    if (s === "jobboard")   return <Briefcase {...p} />
+    return                         <Send      {...p} />
   }
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n || 0)
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Business name */}
+      <EditRow label="Business" icon={<Building2 size={12} />}>
+        <input
+          type="text"
+          value={draft.businessName ?? ""}
+          onChange={(e) => patch("businessName", e.target.value)}
+          placeholder="e.g. Acme Properties LLC"
+          className="bg-transparent outline-none w-full text-[13px] font-sans"
+          style={{ color: "#eaecef" }}
+          aria-label="Business name"
+        />
+      </EditRow>
+
       {/* Phone with copy */}
       <EditRow label="Phone" icon={<Phone size={12} />}>
         <div className="flex items-center gap-2 w-full">
@@ -743,6 +806,185 @@ function InfoTab({
           ))}
         </select>
       </EditRow>
+
+      {/* Priority */}
+      <EditRow label="Priority" icon={<Flame size={12} />}>
+        <div className="flex items-center gap-1.5 w-full">
+          {ALL_PRIORITIES.map((p) => {
+            const cfg    = PRIORITY_CONFIG[p]
+            const active = draft.priority === p
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => patch("priority", p)}
+                className="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider"
+                style={{
+                  background: active ? cfg.bg : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${active ? cfg.border : "rgba(255,255,255,0.07)"}`,
+                  color: active ? cfg.color : "rgba(212,216,224,0.4)",
+                  transition: "all 0.12s ease",
+                }}
+                aria-pressed={active}
+              >
+                {cfg.label}
+              </button>
+            )
+          })}
+        </div>
+      </EditRow>
+
+      {/* Section divider */}
+      <div
+        className="flex items-center gap-2 mt-2 mb-0.5"
+        aria-hidden="true"
+      >
+        <span
+          className="text-[10px] font-mono uppercase tracking-[0.14em]"
+          style={{ color: "rgba(212,216,224,0.42)" }}
+        >
+          Engagement
+        </span>
+        <span className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+      </div>
+
+      {/* Last contact */}
+      <EditRow label="Last Contact" icon={<MessageSquare size={12} />}>
+        <input
+          type="text"
+          value={draft.lastContactDate ?? ""}
+          onChange={(e) => patch("lastContactDate", e.target.value)}
+          placeholder="e.g. Mar 14"
+          className="bg-transparent outline-none w-full text-[13px] font-mono"
+          style={{ color: "#eaecef" }}
+          aria-label="Last contact date"
+        />
+      </EditRow>
+
+      {/* Next action */}
+      <EditRow label="Next Action" icon={<Target size={12} />}>
+        <div className="flex items-center gap-2 w-full">
+          <input
+            type="text"
+            value={draft.nextActionLabel ?? ""}
+            onChange={(e) => patch("nextActionLabel", e.target.value)}
+            placeholder="e.g. Follow up call"
+            className="bg-transparent outline-none flex-1 text-[13px] font-sans"
+            style={{ color: "#eaecef" }}
+            aria-label="Next action label"
+          />
+          <div
+            className="flex items-center gap-1 px-2 py-0.5 rounded"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            <Calendar size={10} style={{ color: "rgba(212,216,224,0.4)" }} />
+            <input
+              type="text"
+              value={draft.nextActionDate ?? ""}
+              onChange={(e) => patch("nextActionDate", e.target.value)}
+              placeholder="Mar 18"
+              className="bg-transparent outline-none text-[11px] font-mono"
+              style={{ color: "#eaecef", width: 64 }}
+              aria-label="Next action date"
+            />
+          </div>
+        </div>
+      </EditRow>
+
+      {/* Section divider */}
+      <div className="flex items-center gap-2 mt-2 mb-0.5" aria-hidden="true">
+        <span
+          className="text-[10px] font-mono uppercase tracking-[0.14em]"
+          style={{ color: "rgba(212,216,224,0.42)" }}
+        >
+          Quote
+        </span>
+        <span className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+      </div>
+
+      {/* Quote sent */}
+      <EditRow label="Quote" icon={<FileCheck size={12} />}>
+        <div className="flex items-center justify-between gap-2 w-full">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={!!draft.quoteSent}
+              onChange={(e) => patch("quoteSent", e.target.checked)}
+              className="sr-only"
+              aria-label="Quote sent"
+            />
+            <span
+              className="w-4 h-4 rounded flex items-center justify-center"
+              style={{
+                background: draft.quoteSent ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${draft.quoteSent ? "rgba(16,185,129,0.5)" : "rgba(255,255,255,0.12)"}`,
+              }}
+            >
+              {draft.quoteSent && <Check size={10} style={{ color: "#34d399" }} />}
+            </span>
+            <span
+              className="text-[12px] font-sans"
+              style={{ color: draft.quoteSent ? "#34d399" : "rgba(212,216,224,0.6)" }}
+            >
+              {draft.quoteSent ? "Sent" : "Not sent yet"}
+            </span>
+          </label>
+
+          <div
+            className="flex items-center gap-1 px-2 py-0.5 rounded"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            <DollarSign size={10} style={{ color: "rgba(52,211,153,0.5)" }} />
+            <input
+              type="number"
+              min={0}
+              value={draft.quoteAmount ?? ""}
+              onChange={(e) => patch("quoteAmount", Number(e.target.value) || undefined)}
+              placeholder="Amount"
+              className="bg-transparent outline-none text-[11px] font-mono text-right"
+              style={{ color: "#34d399", width: 80 }}
+              aria-label="Quote amount"
+            />
+          </div>
+        </div>
+      </EditRow>
+
+      {draft.quoteAmount ? (
+        <div
+          className="text-[10px] font-mono text-right -mt-1"
+          style={{ color: "rgba(212,216,224,0.45)" }}
+        >
+          {fmt(draft.quoteAmount)}
+        </div>
+      ) : null}
+
+      {/* Touchpoints readout */}
+      <div
+        className="flex items-center justify-between px-3 py-2 rounded-lg mt-1"
+        style={{
+          background: "rgba(255,255,255,0.02)",
+          border: "1px dashed rgba(255,255,255,0.07)",
+        }}
+      >
+        <span
+          className="flex items-center gap-1.5 text-[11px] font-mono"
+          style={{ color: "rgba(212,216,224,0.55)" }}
+        >
+          <MessageSquare size={11} /> Touchpoints
+        </span>
+        <span
+          className="text-[12px] font-mono font-bold"
+          style={{ color: (draft.numberOfTouchpoints ?? 0) > 0 ? "#34d399" : "rgba(212,216,224,0.4)" }}
+        >
+          {draft.numberOfTouchpoints ?? 0}
+        </span>
+      </div>
     </div>
   )
 }
