@@ -3,8 +3,8 @@
 import { useState, useMemo } from "react"
 import {
   Search, Plus, Globe, Users, MapPin, PhoneCall, Briefcase,
-  Eye, Pencil, Archive, ChevronDown, X, Flame,
-  ListFilter, MessageCircle, Send, Tag,
+  Eye, Pencil, Archive, ChevronDown, ChevronUp, ChevronsUpDown, X, Flame,
+  ListFilter, MessageCircle, Send, Tag, UsersRound, Mail, Calendar,
 } from "lucide-react"
 import {
   Lead, LeadStatus, LeadSource, Priority,
@@ -16,16 +16,17 @@ import {
 function SourceIcon({ source }: { source: LeadSource }) {
   const props = { size: 12, style: { color: "rgba(212,216,224,0.55)" } }
   switch (source) {
-    case "website":    return <Globe {...props} />
-    case "referral":   return <Users {...props} />
-    case "door-knock": return <MapPin {...props} />
-    case "call-in":    return <PhoneCall {...props} />
-    case "craigslist": return <ListFilter {...props} />
-    case "google":     return <Search {...props} />
-    case "signage":    return <Tag {...props} />
-    case "jobboard":   return <Briefcase {...props} />
+    case "website":        return <Globe {...props} />
+    case "referral":       return <Users {...props} />
+    case "word-of-mouth":  return <UsersRound {...props} />
+    case "door-knock":     return <MapPin {...props} />
+    case "call-in":        return <PhoneCall {...props} />
+    case "craigslist":     return <ListFilter {...props} />
+    case "google":         return <Search {...props} />
+    case "signage":        return <Tag {...props} />
+    case "jobboard":       return <Briefcase {...props} />
     case "other":
-    default:           return <Send {...props} />
+    default:               return <Send {...props} />
   }
 }
 
@@ -36,6 +37,12 @@ const JOB_SIZE_COLOR: Record<string, string> = {
   "$$$": "#10b981",
 }
 
+// ── Sort infrastructure ──────────────────────────────────────────
+type SortKey =
+  | "name" | "service" | "source" | "status" | "priority"
+  | "jobSize" | "lastContactDate" | "estValue" | "dateAdded"
+type SortDir = "asc" | "desc"
+
 interface LeadsTableProps {
   leads?: Lead[]
   onViewLead: (lead: Lead) => void
@@ -44,9 +51,17 @@ interface LeadsTableProps {
   allServices?: string[]
 }
 
-const ALL_STATUSES:  LeadStatus[] = ["New", "Contacted", "Estimate", "Converted", "Lost"]
-const ALL_SOURCES:   LeadSource[] = ["website", "referral", "door-knock", "call-in", "craigslist", "google", "signage", "jobboard", "other"]
-const ALL_PRIORITIES: Priority[]  = ["High", "Medium", "Low"]
+const ALL_STATUSES: LeadStatus[] = ["New", "Contacted", "In Progress", "Won", "Lost", "Dead"]
+const ALL_SOURCES: LeadSource[] = [
+  "website", "referral", "word-of-mouth", "door-knock", "call-in",
+  "craigslist", "google", "signage", "jobboard", "other",
+]
+const ALL_PRIORITIES: Priority[] = ["High", "Medium", "Low"]
+const STATUS_SORT_RANK: Record<LeadStatus, number> = {
+  "New": 0, "Contacted": 1, "In Progress": 2, "Won": 3, "Lost": 4, "Dead": 5,
+}
+const PRIORITY_SORT_RANK: Record<Priority, number> = { High: 0, Medium: 1, Low: 2 }
+const JOB_SIZE_SORT_RANK: Record<string, number> = { "$": 1, "$$": 2, "$$$": 3 }
 
 export default function LeadsTable({
   leads = SAMPLE_LEADS,
@@ -60,6 +75,8 @@ export default function LeadsTable({
   const [sourceFilter, setSource]       = useState<LeadSource | "All">("All")
   const [serviceFilter, setService]     = useState("All")
   const [priorityFilter, setPriority]   = useState<Priority | "All">("All")
+  const [sortKey, setSortKey]           = useState<SortKey>("dateAdded")
+  const [sortDir, setSortDir]           = useState<SortDir>("desc")
   const [copied, setCopied]             = useState<number | null>(null)
 
   const services = useMemo(() => Array.from(new Set(leads.map((l) => l.service))), [leads])
@@ -67,6 +84,7 @@ export default function LeadsTable({
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n || 0)
 
+  // ── Filter ──────────────────────────────────────────────────
   const filtered = useMemo(() => {
     return leads.filter((l) => {
       const q = search.toLowerCase()
@@ -75,6 +93,7 @@ export default function LeadsTable({
         (l.businessName ?? "").toLowerCase().includes(q) ||
         l.city.toLowerCase().includes(q) ||
         l.phone.includes(q) ||
+        (l.email ?? "").toLowerCase().includes(q) ||
         l.service.toLowerCase().includes(q)
       const matchStatus   = statusFilter   === "All" || l.status   === statusFilter
       const matchSource   = sourceFilter   === "All" || l.source   === sourceFilter
@@ -84,86 +103,142 @@ export default function LeadsTable({
     })
   }, [leads, search, statusFilter, sourceFilter, serviceFilter, priorityFilter])
 
+  // ── Sort ────────────────────────────────────────────────────
+  const sorted = useMemo(() => {
+    const dirMul = sortDir === "asc" ? 1 : -1
+    const value = (l: Lead): number | string => {
+      switch (sortKey) {
+        case "name":             return l.name.toLowerCase()
+        case "service":          return l.service.toLowerCase()
+        case "source":           return l.source
+        case "status":           return STATUS_SORT_RANK[l.status] ?? 99
+        case "priority":         return PRIORITY_SORT_RANK[l.priority] ?? 99
+        case "jobSize":          return JOB_SIZE_SORT_RANK[l.jobSize] ?? 0
+        case "estValue":         return l.estValue ?? 0
+        case "lastContactDate":  return l.lastContactDate ? Date.parse(l.lastContactDate) || 0 : 0
+        case "dateAdded":        return Date.parse(l.dateAdded) || 0
+      }
+    }
+    return [...filtered].sort((a, b) => {
+      const av = value(a); const bv = value(b)
+      if (av < bv) return -1 * dirMul
+      if (av > bv) return  1 * dirMul
+      return 0
+    })
+  }, [filtered, sortKey, sortDir])
+
   const copyPhone = (lead: Lead) => {
     navigator.clipboard.writeText(lead.phone).catch(() => {})
     setCopied(lead.id)
     setTimeout(() => setCopied(null), 1500)
   }
 
-  const hasFilters = statusFilter !== "All" || sourceFilter !== "All" || serviceFilter !== "All" || priorityFilter !== "All" || search !== ""
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+    else { setSortKey(key); setSortDir(key === "estValue" || key === "dateAdded" || key === "lastContactDate" ? "desc" : "asc") }
+  }
+
+  const hasFilters =
+    statusFilter !== "All" || sourceFilter !== "All" ||
+    serviceFilter !== "All" || priorityFilter !== "All" || search !== ""
+
+  // ── Header config ───────────────────────────────────────────
+  const columns: { key: SortKey | null; label: string; className?: string }[] = [
+    { key: "name",            label: "Lead / Business" },
+    { key: null,              label: "Contact" },
+    { key: "service",         label: "Service" },
+    { key: "source",          label: "Source" },
+    { key: "status",          label: "Status" },
+    { key: "priority",        label: "Priority" },
+    { key: "jobSize",         label: "Size" },
+    { key: "lastContactDate", label: "Last Contact" },
+    { key: "estValue",        label: "Est. Value", className: "text-right" },
+    { key: null,              label: "" },
+  ]
 
   return (
     <div className="flex flex-col gap-4">
 
       {/* ── Toolbar ───────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
         <label
-          className="flex items-center gap-2 px-3 h-9 rounded-lg flex-1 min-w-[220px]"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+          className="toolbar-pill flex items-center gap-2 pl-3 pr-2 h-9 flex-1 min-w-[240px]"
         >
-          <Search size={13} style={{ color: "rgba(212,216,224,0.35)", flexShrink: 0 }} />
+          <Search size={13} style={{ color: "rgba(212,216,224,0.45)", flexShrink: 0 }} />
           <input
             type="text"
-            placeholder="Search name, business, city, phone…"
+            placeholder="Search name, business, city, phone, email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none w-full text-xs font-mono"
-            style={{ color: "#d4d8e0" }}
+            className="bg-transparent outline-none w-full text-[13px] font-sans"
+            style={{ color: "#e5e7eb" }}
             aria-label="Search leads"
           />
           {search && (
-            <button onClick={() => setSearch("")} aria-label="Clear search">
-              <X size={11} style={{ color: "rgba(212,216,224,0.4)" }} />
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="flex items-center justify-center w-5 h-5 rounded-md"
+              style={{
+                color: "rgba(212,216,224,0.5)",
+                background: "rgba(255,255,255,0.04)",
+              }}
+            >
+              <X size={11} />
             </button>
           )}
         </label>
 
-        {/* Filter chips */}
-        <FilterSelect label="Status"   value={statusFilter}   onChange={(v) => setStatus(v as LeadStatus | "All")}     options={["All", ...ALL_STATUSES]} />
-        <FilterSelect label="Priority" value={priorityFilter} onChange={(v) => setPriority(v as Priority | "All")}     options={["All", ...ALL_PRIORITIES]} />
-        <FilterSelect label="Service"  value={serviceFilter}  onChange={setService}                                   options={["All", ...services]} />
-        <FilterSelect label="Source"   value={sourceFilter}   onChange={(v) => setSource(v as LeadSource | "All")}     options={["All", ...ALL_SOURCES]} labelMap={SOURCE_LABELS as Record<string, string>} />
+        {/* Filter dropdowns — outlined pills with chevron */}
+        <FilterSelect
+          label="Status" value={statusFilter}
+          onChange={(v) => setStatus(v as LeadStatus | "All")}
+          options={["All", ...ALL_STATUSES]}
+        />
+        <FilterSelect
+          label="Priority" value={priorityFilter}
+          onChange={(v) => setPriority(v as Priority | "All")}
+          options={["All", ...ALL_PRIORITIES]}
+        />
+        <FilterSelect label="Service" value={serviceFilter} onChange={setService} options={["All", ...services]} />
+        <FilterSelect
+          label="Source" value={sourceFilter}
+          onChange={(v) => setSource(v as LeadSource | "All")}
+          options={["All", ...ALL_SOURCES]}
+          labelMap={SOURCE_LABELS as Record<string, string>}
+        />
 
+        {/* Compact reset icon button — only rendered when any filter is active */}
         {hasFilters && (
           <button
+            type="button"
             onClick={() => {
               setSearch(""); setStatus("All"); setSource("All"); setService("All"); setPriority("All")
             }}
-            className="text-xs font-mono h-9 px-3 rounded-lg flex items-center gap-1.5"
-            style={{ color: "#f87171", border: "1px solid rgba(248,113,113,0.22)", background: "rgba(248,113,113,0.06)" }}
+            aria-label="Clear all filters"
+            title="Clear all filters"
+            className="toolbar-icon-btn flex items-center justify-center w-9 h-9"
           >
-            <X size={11} /> Clear
+            <X size={13} style={{ color: "#f87171" }} />
           </button>
         )}
 
-        <div className="text-xs font-mono ml-auto" style={{ color: "rgba(212,216,224,0.35)" }}>
-          {filtered.length} lead{filtered.length !== 1 ? "s" : ""}
+        {/* Counter pushed to the far right, paired with the primary CTA */}
+        <div
+          className="ml-auto text-[11px] font-mono whitespace-nowrap hidden md:block"
+          style={{ color: "rgba(212,216,224,0.4)" }}
+        >
+          {sorted.length} lead{sorted.length !== 1 ? "s" : ""}
         </div>
 
-        {/* Add New Lead CTA */}
+        {/* Add New Lead — solid primary CTA */}
         <button
           onClick={onAddLead}
-          className="flex items-center gap-2 h-9 px-4 rounded-lg text-xs font-semibold font-sans"
-          style={{
-            background: "rgba(59,130,246,0.14)",
-            border: "1px solid rgba(59,130,246,0.35)",
-            color: "#93c5fd",
-            boxShadow: "0 0 14px rgba(59,130,246,0.16)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(59,130,246,0.22)"
-            e.currentTarget.style.boxShadow  = "0 0 22px rgba(59,130,246,0.28)"
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(59,130,246,0.14)"
-            e.currentTarget.style.boxShadow  = "0 0 14px rgba(59,130,246,0.16)"
-          }}
+          className="toolbar-primary-btn flex items-center gap-1.5 h-9 px-4 text-[13px] font-semibold font-sans"
         >
-          <Plus size={14} />
+          <Plus size={14} strokeWidth={2.5} />
           Add New Lead
         </button>
       </div>
@@ -174,25 +249,45 @@ export default function LeadsTable({
         style={{ boxShadow: "0 4px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)" }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-xs font-sans" style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 1100 }}>
+          <table className="w-full text-xs font-sans" style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 1180 }}>
             <thead>
               <tr style={{ background: "rgba(255,255,255,0.025)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                {["Lead / Business", "Phone", "Service", "Source", "Status", "Priority", "Size", "Last Contact", "Est. Value", ""].map((h, i) => (
-                  <th
-                    key={i}
-                    className="px-4 py-3 text-left font-medium text-[10px] uppercase tracking-[0.14em] font-mono"
-                    style={{ color: "rgba(212,216,224,0.42)", whiteSpace: "nowrap" }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {columns.map((col, i) => {
+                  const active = col.key && sortKey === col.key
+                  return (
+                    <th
+                      key={i}
+                      className={`px-4 py-3 text-left font-medium text-[10px] uppercase tracking-[0.14em] font-mono ${col.className ?? ""}`}
+                      style={{
+                        color: active ? "#93c5fd" : "rgba(212,216,224,0.42)",
+                        whiteSpace: "nowrap",
+                        cursor: col.key ? "pointer" : "default",
+                        userSelect: "none",
+                        transition: "color 0.12s ease",
+                      }}
+                      onClick={col.key ? () => toggleSort(col.key as SortKey) : undefined}
+                      aria-sort={active ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
+                    >
+                      <span className={`inline-flex items-center gap-1 ${col.className === "text-right" ? "justify-end w-full" : ""}`}>
+                        {col.label}
+                        {col.key && (
+                          active
+                            ? (sortDir === "asc"
+                                ? <ChevronUp size={11} />
+                                : <ChevronDown size={11} />)
+                            : <ChevronsUpDown size={11} style={{ opacity: 0.28 }} />
+                        )}
+                      </span>
+                    </th>
+                  )
+                })}
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {sorted.length === 0 ? (
                 <EmptyState hasSearch={hasFilters} onAdd={onAddLead} />
               ) : (
-                filtered.map((lead) => (
+                sorted.map((lead) => (
                   <LeadRow
                     key={lead.id}
                     lead={lead}
@@ -224,23 +319,31 @@ function FilterSelect({
   labelMap?: Record<string, string>
 }) {
   const isActive = value !== "All"
+  const displayValue = value === "All" ? label : (labelMap?.[value] ?? value)
   return (
     <div
-      className="relative flex items-center gap-1.5 px-3 h-9 rounded-lg cursor-pointer"
+      className="toolbar-pill relative flex items-center gap-2 pl-3 pr-2.5 h-9 cursor-pointer"
+      data-active={isActive ? "true" : "false"}
       style={{
-        background: isActive ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.04)",
-        border: `1px solid ${isActive ? "rgba(59,130,246,0.32)" : "rgba(255,255,255,0.08)"}`,
-        color: isActive ? "#93c5fd" : "rgba(212,216,224,0.5)",
+        color: isActive ? "#93c5fd" : "rgba(212,216,224,0.7)",
       }}
     >
-      <span className="text-xs font-mono whitespace-nowrap">
-        {value === "All" ? label : (labelMap?.[value] ?? value)}
-      </span>
-      <ChevronDown size={11} />
+      {isActive && (
+        <span
+          aria-hidden="true"
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{
+            background: "#60a5fa",
+            boxShadow: "0 0 6px rgba(96,165,250,0.55)",
+          }}
+        />
+      )}
+      <span className="text-[13px] font-sans whitespace-nowrap">{displayValue}</span>
+      <ChevronDown size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="absolute inset-0 w-full opacity-0 cursor-pointer"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         aria-label={`Filter by ${label}`}
       >
         {options.map((o) => (
@@ -273,18 +376,22 @@ function LeadRow({
       onClick={() => onView(lead)}
     >
       {/* Lead + Business */}
-      <td className="px-4 py-3" style={{ minWidth: 200 }}>
+      <td className="px-4 py-3" style={{ minWidth: 220 }}>
         <div className="flex items-center gap-2.5">
           <Avatar name={lead.name} />
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-semibold font-sans text-[13px]" style={{ color: "#eaecef" }}>{lead.name}</span>
-              {lead.priority === "High" && (
-                <Flame size={10} style={{ color: "#f87171" }} />
-              )}
+              {lead.priority === "High" && <Flame size={10} style={{ color: "#f87171" }} />}
+              <span
+                className="ml-1 text-[9px] font-mono uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ color: "rgba(212,216,224,0.28)" }}
+              >
+                #{lead.id}
+              </span>
             </div>
             {lead.businessName ? (
-              <span className="text-[11px] font-sans truncate" style={{ color: "rgba(212,216,224,0.55)", maxWidth: 180 }}>
+              <span className="text-[11px] font-sans truncate" style={{ color: "rgba(212,216,224,0.55)", maxWidth: 200 }}>
                 {lead.businessName}
               </span>
             ) : null}
@@ -299,19 +406,30 @@ function LeadRow({
         </div>
       </td>
 
-      {/* Phone — click to copy */}
-      <td
-        className="px-4 py-3 font-mono"
-        style={{ color: "rgba(212,216,224,0.5)", minWidth: 130 }}
-        onClick={(e) => { e.stopPropagation(); onCopy(lead) }}
-        title="Click to copy"
-      >
-        <span
-          className="cursor-pointer hover:underline"
-          style={{ color: copied === lead.id ? "#10b981" : "rgba(212,216,224,0.6)" }}
-        >
-          {copied === lead.id ? "Copied!" : lead.phone}
-        </span>
+      {/* Contact cluster — phone + email */}
+      <td className="px-4 py-3" style={{ minWidth: 160 }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-col gap-0.5">
+          <button
+            onClick={() => onCopy(lead)}
+            className="inline-flex items-center gap-1.5 text-[11px] font-mono hover:underline w-fit"
+            style={{ color: copied === lead.id ? "#10b981" : "rgba(212,216,224,0.62)" }}
+            title="Click to copy"
+          >
+            <PhoneCall size={10} style={{ color: "rgba(212,216,224,0.42)" }} />
+            {copied === lead.id ? "Copied!" : lead.phone}
+          </button>
+          {lead.email ? (
+            <a
+              href={`mailto:${lead.email}`}
+              className="inline-flex items-center gap-1.5 text-[10px] font-mono truncate hover:underline"
+              style={{ color: "rgba(212,216,224,0.4)", maxWidth: 160 }}
+              title={lead.email}
+            >
+              <Mail size={9} />
+              {lead.email}
+            </a>
+          ) : null}
+        </div>
       </td>
 
       {/* Service */}
@@ -329,14 +447,14 @@ function LeadRow({
       </td>
 
       {/* Source */}
-      <td className="px-4 py-3" style={{ minWidth: 130 }}>
+      <td className="px-4 py-3" style={{ minWidth: 140 }}>
         <div
           className="flex items-center gap-1.5 text-xs font-mono"
           style={{ color: "rgba(212,216,224,0.55)" }}
           title={SOURCE_LABELS[lead.source]}
         >
           <SourceIcon source={lead.source} />
-          <span className="hidden md:inline">{SOURCE_LABELS[lead.source]}</span>
+          <span>{SOURCE_LABELS[lead.source]}</span>
         </div>
       </td>
 
@@ -378,8 +496,8 @@ function LeadRow({
         {lead.jobSize}
       </td>
 
-      {/* Last contact + touchpoints */}
-      <td className="px-4 py-3" style={{ minWidth: 130 }}>
+      {/* Last contact + touchpoints + follow-up */}
+      <td className="px-4 py-3" style={{ minWidth: 150 }}>
         <div className="flex flex-col">
           <span
             className="text-[11px] font-mono"
@@ -393,6 +511,15 @@ function LeadRow({
           >
             <MessageCircle size={9} /> {touches} touch{touches !== 1 ? "es" : ""}
           </span>
+          {lead.followUpDate ? (
+            <span
+              className="text-[10px] font-mono flex items-center gap-1 mt-0.5"
+              style={{ color: "rgba(245,158,11,0.75)" }}
+              title="Follow-up scheduled"
+            >
+              <Calendar size={9} /> {lead.followUpDate}
+            </span>
+          ) : null}
         </div>
       </td>
 
@@ -405,7 +532,7 @@ function LeadRow({
       <td
         className="px-4 py-3"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: 100 }}
+        style={{ width: 110 }}
       >
         <div
           className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100"

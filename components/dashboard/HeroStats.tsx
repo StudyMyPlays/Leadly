@@ -396,7 +396,7 @@ function ConvertedCard() {
   const count = useCountUp(14, 1100, 240)
   const pct = 30
   return (
-    <KpiCard accent={EMERALD} delay={240} ariaLabel="Converted">
+    <KpiCard accent={EMERALD} delay={240} ariaLabel="Won deals">
       <header className="flex items-center justify-between">
         <IconTile Icon={Trophy} accent={EMERALD} />
         <Delta value={`${pct}%`} accent={EMERALD} label="conv." />
@@ -408,7 +408,7 @@ function ConvertedCard() {
             className="text-[10px] font-mono uppercase tracking-[0.12em]"
             style={{ color: TEXT_MUTE }}
           >
-            Converted to Jobs
+            Won Deals
           </p>
           <StatNumber value={count} color={EMERALD} />
         </div>

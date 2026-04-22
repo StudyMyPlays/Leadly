@@ -76,11 +76,12 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
 
   // ── KPIs ──────────────────────────────────────────────────────
   const kpis = useMemo(() => {
-    const open = allLeads.filter((l) => l.status !== "Lost" && l.status !== "Converted")
+    const closedStatuses: LeadStatus[] = ["Won", "Lost", "Dead"]
+    const open = allLeads.filter((l) => !closedStatuses.includes(l.status))
     const pipelineValue = open.reduce((s, l) => s + (l.estValue || 0), 0)
-    const hot  = allLeads.filter((l) => l.status === "Estimate" || l.jobSize === "$$$" || l.priority === "High")
-    const won  = allLeads.filter((l) => l.status === "Converted")
-    const lost = allLeads.filter((l) => l.status === "Lost")
+    const hot  = allLeads.filter((l) => l.status === "In Progress" || l.jobSize === "$$$" || l.priority === "High")
+    const won  = allLeads.filter((l) => l.status === "Won")
+    const lost = allLeads.filter((l) => l.status === "Lost" || l.status === "Dead")
     const decided = won.length + lost.length
     const conversion = decided === 0 ? 0 : Math.round((won.length / decided) * 100)
     const wonValue   = won.reduce((s, l) => s + (l.revenue || l.estValue || 0), 0)
@@ -102,7 +103,7 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
   }, [allLeads, config.services])
 
   // ── Pipeline distribution ────────────────────────────────────
-  const statusRanks: LeadStatus[] = ["New", "Contacted", "Estimate", "Converted", "Lost"]
+  const statusRanks: LeadStatus[] = ["New", "Contacted", "In Progress", "Won", "Lost", "Dead"]
   const statusBreakdown = useMemo(() => {
     const total = Math.max(1, allLeads.length)
     return statusRanks.map((s) => {
@@ -173,7 +174,7 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
     if (removed) addNotification?.("warning", `${removed.name} was removed from pipeline`)
   }
 
-  // ── CSV export ──────────────────────────────────────────────
+  // ── CSV export ���─────────────────────────────────────────────
   const exportCsv = () => {
     const headers = [
       "ID", "Date Added", "Name", "Business", "Phone", "Email", "Address", "City",
@@ -181,7 +182,7 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
       "Status", "Priority", "Job Size", "Est. Value", "Revenue",
       "Follow-up", "Assigned To", "Next Action",
       "First Contacted", "Last Contact", "Contact Method", "Touchpoints",
-      "Converted", "Conversion Date", "Reason Lost", "Notes",
+      "Won", "Conversion Date", "Reason Lost", "Notes",
     ]
     const escape = (v: unknown) => {
       const s = String(v ?? "")

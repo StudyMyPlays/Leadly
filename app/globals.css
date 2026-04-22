@@ -241,6 +241,63 @@
   box-shadow: 0 0 6px rgba(59, 130, 246, 0.25);
 }
 
+/* ── Leads toolbar (unified outlined-pill aesthetic) ─────────── */
+.toolbar-pill {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.toolbar-pill:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.035);
+}
+.toolbar-pill:focus-within {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.04);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.09);
+}
+.toolbar-pill[data-active="true"] {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.toolbar-icon-btn {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.toolbar-icon-btn:hover {
+  border-color: rgba(248, 113, 113, 0.32);
+  background: rgba(248, 113, 113, 0.06);
+}
+
+.toolbar-primary-btn {
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 6px 18px -8px rgba(59, 130, 246, 0.55);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.toolbar-primary-btn:hover {
+  background: linear-gradient(180deg, #4f8ef7 0%, #2f6ff0 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 10px 24px -8px rgba(59, 130, 246, 0.7);
+}
+.toolbar-primary-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 4px 12px -8px rgba(59, 130, 246, 0.5);
+}
+
 /* ── Table row lift + scan-line ──────────────────────────────── */
 @keyframes scanLine {
   0%   { transform: translateY(-100%); opacity: 0; }

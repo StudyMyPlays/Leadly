@@ -14,18 +14,19 @@ interface AddLeadModalProps {
 }
 
 const SOURCES: { value: LeadSource; label: string }[] = [
-  { value: "website",    label: "Website" },
-  { value: "referral",   label: "Referral" },
-  { value: "door-knock", label: "Door Knock" },
-  { value: "call-in",    label: "Call-In" },
-  { value: "craigslist", label: "Craigslist" },
-  { value: "google",     label: "Google Search" },
-  { value: "signage",    label: "Signage" },
-  { value: "jobboard",   label: "Job Board" },
-  { value: "other",      label: "Other" },
+  { value: "website",       label: "Website" },
+  { value: "referral",      label: "Referral" },
+  { value: "word-of-mouth", label: "Word of Mouth" },
+  { value: "door-knock",    label: "Door Knock" },
+  { value: "call-in",       label: "Call-In" },
+  { value: "craigslist",    label: "Craigslist" },
+  { value: "google",        label: "Google Search" },
+  { value: "signage",       label: "Signage" },
+  { value: "jobboard",      label: "Job Board" },
+  { value: "other",         label: "Other" },
 ]
 const JOB_SIZES: JobSize[]   = ["$", "$$", "$$$"]
-const STATUSES: LeadStatus[] = ["New", "Contacted", "Estimate", "Converted", "Lost"]
+const STATUSES: LeadStatus[] = ["New", "Contacted", "In Progress", "Won", "Lost", "Dead"]
 const PRIORITIES: Priority[] = ["Low", "Medium", "High"]
 const CONTACT_METHODS: ContactMethod[] = ["Call", "Text", "Email", "In-Person"]
 

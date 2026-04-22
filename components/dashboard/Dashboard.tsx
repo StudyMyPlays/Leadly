@@ -5,7 +5,6 @@ import dynamic from "next/dynamic"
 import Sidebar from "./Sidebar"
 import Topbar from "./Topbar"
 import LeadsView from "./LeadsView"
-import PipelineView from "./PipelineView"
 import AnalyticsView from "./AnalyticsView"
 import type { DashboardConfig as AdminConfig } from "@/components/admin/AdminConfigPanel"
 import {
@@ -31,8 +30,8 @@ const DEFAULT_CONFIG = {
   commissionPerLead: 50,
 }
 
-type Section = "dashboard" | "pipeline" | "analytics"
-const VALID_SECTIONS: Section[] = ["dashboard", "pipeline", "analytics"]
+type Section = "dashboard" | "analytics"
+const VALID_SECTIONS: Section[] = ["dashboard", "analytics"]
 
 function normalizeSection(value: string | undefined): Section {
   return VALID_SECTIONS.includes(value as Section) ? (value as Section) : "dashboard"
@@ -96,7 +95,6 @@ export default function Dashboard({
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":  return <LeadsView config={config} addNotification={addNotification} />
-      case "pipeline":   return <PipelineView config={config} />
       case "analytics":  return <AnalyticsView config={config} />
       default:           return <LeadsView config={config} addNotification={addNotification} />
     }

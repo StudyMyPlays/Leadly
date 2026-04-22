@@ -23,7 +23,6 @@ interface TopbarProps {
 
 const SECTION_LABELS: Record<string, string> = {
   dashboard: "Leads",
-  pipeline:  "Pipeline",
   analytics: "Analytics",
 }
 

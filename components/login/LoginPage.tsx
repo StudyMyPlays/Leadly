@@ -47,9 +47,13 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
       style={{ background: "#06060a" }}
     >
       {/* Animated grid */}
-      <div className="grid-bg absolute inset-0 pointer-events-none" aria-hidden="true" />
+      <div
+        className="grid-bg absolute inset-0 pointer-events-none"
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      />
 
-      {/* Radial blue ambient glow behind card */}
+      {/* Radial blue ambient glow behind sphere */}
       <div
         aria-hidden="true"
         className="absolute pointer-events-none"
@@ -61,6 +65,7 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
           left: "50%",
           top: "50%",
           transform: "translate(-50%, -50%)",
+          zIndex: 0,
         }}
       />
 

@@ -1,5 +1,5 @@
-export type LeadStatus = "New" | "Contacted" | "Estimate" | "Converted" | "Lost"
-export type LeadSource = "website" | "referral" | "door-knock" | "call-in" | "craigslist" | "google" | "signage" | "jobboard" | "other"
+export type LeadStatus = "New" | "Contacted" | "In Progress" | "Won" | "Lost" | "Dead"
+export type LeadSource = "website" | "referral" | "door-knock" | "call-in" | "craigslist" | "google" | "word-of-mouth" | "signage" | "jobboard" | "other"
 export type JobSize   = "$" | "$$" | "$$$"
 export type Priority  = "High" | "Medium" | "Low"
 export type ContactMethod = "Call" | "Text" | "Email" | "In-Person"
@@ -25,7 +25,7 @@ export interface Lead {
   source: LeadSource
   sourceUrl?: string
   campaign?: string
-  
+
   // Pipeline & status
   status: LeadStatus
   priority: Priority
@@ -57,12 +57,16 @@ export interface Lead {
 
 // ── Status display config ────────────────────────────────────────
 export const STATUS_CONFIG: Record<LeadStatus, { label: string; badge: string; color: string }> = {
-  New:       { label: "New",       badge: "badge-cyan",   color: "#60a5fa" },
-  Contacted: { label: "Contacted", badge: "badge-blue",   color: "#4D9FFF" },
-  Estimate:  { label: "Estimate",  badge: "badge-purple", color: "#9B59FF" },
-  Converted: { label: "Converted", badge: "badge-green",  color: "#22c55e" },
-  Lost:      { label: "Lost",      badge: "badge-dim",    color: "rgba(212,216,224,0.35)" },
+  "New":         { label: "New",         badge: "badge-cyan",   color: "#60a5fa" },
+  "Contacted":   { label: "Contacted",   badge: "badge-blue",   color: "#4D9FFF" },
+  "In Progress": { label: "In Progress", badge: "badge-amber",  color: "#f59e0b" },
+  "Won":         { label: "Won",         badge: "badge-green",  color: "#22c55e" },
+  "Lost":        { label: "Lost",        badge: "badge-red",    color: "#f87171" },
+  "Dead":        { label: "Dead",        badge: "badge-dim",    color: "rgba(212,216,224,0.42)" },
 }
+
+// Pipeline display order (for progress bars, funnel, filters)
+export const STATUS_ORDER: LeadStatus[] = ["New", "Contacted", "In Progress", "Won", "Lost", "Dead"]
 
 export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; bg: string; border: string }> = {
   High:   { label: "High",   color: "#ff4455", bg: "rgba(255,68,85,0.12)",  border: "rgba(255,68,85,0.38)" },
@@ -71,15 +75,16 @@ export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; b
 }
 
 export const SOURCE_LABELS: Record<LeadSource, string> = {
-  "website":    "Website",
-  "referral":   "Referral",
-  "door-knock": "Door Knock",
-  "call-in":    "Call-In",
-  "craigslist": "Craigslist",
-  "google":     "Google Search",
-  "signage":    "Signage",
-  "jobboard":   "Job Board",
-  "other":      "Other",
+  "website":        "Website",
+  "referral":       "Referral",
+  "door-knock":     "Door Knock",
+  "call-in":        "Call-In",
+  "craigslist":     "Craigslist",
+  "google":         "Google Search",
+  "word-of-mouth":  "Word of Mouth",
+  "signage":        "Signage",
+  "jobboard":       "Job Board",
+  "other":          "Other",
 }
 
 // Generic service color palette — new services get assigned from this pool
@@ -156,7 +161,7 @@ export const SAMPLE_LEADS: Lead[] = [
     service: "Consultation",
     source: "referral",
     campaign: "Referral Program",
-    status: "Estimate",
+    status: "In Progress",
     priority: "Medium",
     jobSize: "$",
     dateAdded: "Apr 10, 2025",
@@ -235,7 +240,7 @@ export const SAMPLE_LEADS: Lead[] = [
     address: "654 River Rd, Chicago, IL 60614",
     city: "Chicago",
     service: "Maintenance",
-    source: "referral",
+    source: "word-of-mouth",
     status: "New",
     priority: "Low",
     jobSize: "$",
@@ -245,7 +250,7 @@ export const SAMPLE_LEADS: Lead[] = [
     notes: "",
     converted: false,
     activity: [
-      { id: "e1", timestamp: "Apr 8 1:22pm", text: "Lead created via referral." },
+      { id: "e1", timestamp: "Apr 8 1:22pm", text: "Lead created via word-of-mouth." },
     ],
   },
   {
@@ -260,7 +265,7 @@ export const SAMPLE_LEADS: Lead[] = [
     source: "google",
     sourceUrl: "https://www.google.com/search?q=installation+services+nyc",
     campaign: "Google Ads - Installation",
-    status: "Converted",
+    status: "Won",
     priority: "High",
     jobSize: "$$$",
     dateAdded: "Apr 8, 2025",
@@ -312,7 +317,7 @@ export const SAMPLE_LEADS: Lead[] = [
     city: "Chicago",
     service: "Installation",
     source: "referral",
-    status: "Estimate",
+    status: "In Progress",
     priority: "High",
     jobSize: "$$$",
     dateAdded: "Apr 7, 2025",
@@ -400,7 +405,7 @@ export const SAMPLE_LEADS: Lead[] = [
     city: "New York",
     service: "Emergency",
     source: "call-in",
-    status: "Estimate",
+    status: "In Progress",
     priority: "High",
     jobSize: "$$$",
     dateAdded: "Apr 5, 2025",
@@ -429,7 +434,7 @@ export const SAMPLE_LEADS: Lead[] = [
     city: "Chicago",
     service: "Installation",
     source: "door-knock",
-    status: "Converted",
+    status: "Won",
     priority: "Medium",
     jobSize: "$$",
     dateAdded: "Apr 4, 2025",
@@ -447,6 +452,34 @@ export const SAMPLE_LEADS: Lead[] = [
       { id: "l1", timestamp: "Apr 4 3:30pm", text: "Lead created — door knock." },
       { id: "l2", timestamp: "Apr 5 9:00am", text: "Called, estimate booked." },
       { id: "l3", timestamp: "Apr 7 8:00am", text: "Job completed. $980 collected." },
+    ],
+  },
+  {
+    id: 13,
+    name: "Tyler Mendoza",
+    businessName: "Mendoza Home Repairs",
+    phone: "917-555-1420",
+    email: "tyler@mendozahr.com",
+    city: "New York",
+    service: "Maintenance",
+    source: "jobboard",
+    sourceUrl: "https://thumbtack.com/leads/mendoza",
+    status: "Dead",
+    priority: "Low",
+    jobSize: "$",
+    dateAdded: "Mar 28, 2025",
+    firstContactedDate: "Mar 28, 2025",
+    lastContactDate: "Mar 30, 2025",
+    contactMethod: "Call",
+    numberOfTouchpoints: 3,
+    estValue: 180,
+    notes: "Went cold after third outreach. Archived.",
+    converted: false,
+    reasonLost: "Ghosted — no response after 3 attempts.",
+    activity: [
+      { id: "m1", timestamp: "Mar 28 9:00am",  text: "Lead created from job board." },
+      { id: "m2", timestamp: "Mar 29 11:00am", text: "Left voicemail." },
+      { id: "m3", timestamp: "Mar 30 2:00pm",  text: "Second voicemail — no response." },
     ],
   },
 ]
