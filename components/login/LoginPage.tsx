@@ -67,36 +67,21 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
       {/* Wireframe sphere */}
       <WireframeSphere />
 
-      {/* Card */}
+      {/* Card - Glass morphism with light transparency */}
       <div
         className="login-card login-card-enter relative z-10 w-full"
-        style={{ maxWidth: 400, margin: "0 16px" }}
+        style={{
+          maxWidth: 400,
+          margin: "0 16px",
+          background: "rgba(12, 12, 16, 0.35)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(59, 130, 246, 0.15)",
+          borderRadius: "12px",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+        }}
       >
         <div className="p-8 flex flex-col gap-6">
-          {/* Logo + name */}
-          <div className="flex flex-col items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold font-mono"
-              style={{
-                background: "rgba(59,130,246,0.10)",
-                border: "1px solid rgba(59,130,246,0.30)",
-                color: "#60a5fa",
-                boxShadow: "0 0 18px rgba(59,130,246,0.18)",
-              }}
-            >
-              {config.clientName.charAt(0)}
-            </div>
-            <div className="text-center">
-              <h1 className="text-lg font-semibold font-sans" style={{ color: "#e2e8f0" }}>
-                {config.clientName}
-              </h1>
-              <p className="text-xs font-mono mt-0.5" style={{ color: "rgba(200,205,216,0.40)" }}>
-                Lead Management Dashboard
-              </p>
-            </div>
-          </div>
-
-          {/* Role selector */}
+          {/* Role selector - starts here */}
           <div>
             <p className="config-label text-center mb-3">Sign in as</p>
             <div className="grid grid-cols-2 gap-3">
@@ -104,25 +89,45 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
                 <button
                   key={r}
                   type="button"
-                  onClick={() => { setRole(r); setError("") }}
+                  onClick={() => {
+                    setRole(r)
+                    setError("")
+                  }}
                   className={`role-card flex flex-col items-center gap-2 py-4 px-3${role === r ? " selected" : ""}`}
                 >
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
                     style={{
-                      background: role === r ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
-                      border: role === r ? "1px solid rgba(59,130,246,0.30)" : "1px solid rgba(255,255,255,0.07)",
+                      background:
+                        role === r ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
+                      border:
+                        role === r
+                          ? "1px solid rgba(59,130,246,0.30)"
+                          : "1px solid rgba(255,255,255,0.07)",
                       transition: "all 0.15s ease",
                     }}
                   >
-                    {r === "owner"
-                      ? <User size={16} style={{ color: role === r ? "#60a5fa" : "rgba(200,205,216,0.4)" }} />
-                      : <Briefcase size={16} style={{ color: role === r ? "#60a5fa" : "rgba(200,205,216,0.4)" }} />
-                    }
+                    {r === "owner" ? (
+                      <User
+                        size={16}
+                        style={{
+                          color: role === r ? "#60a5fa" : "rgba(200,205,216,0.4)",
+                        }}
+                      />
+                    ) : (
+                      <Briefcase
+                        size={16}
+                        style={{
+                          color: role === r ? "#60a5fa" : "rgba(200,205,216,0.4)",
+                        }}
+                      />
+                    )}
                   </div>
                   <span
                     className="text-sm font-semibold font-sans capitalize"
-                    style={{ color: role === r ? "#93c5fd" : "rgba(200,205,216,0.50)" }}
+                    style={{
+                      color: role === r ? "#93c5fd" : "rgba(200,205,216,0.50)",
+                    }}
                   >
                     {r}
                   </span>
@@ -142,7 +147,9 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="config-label" htmlFor="email">Email</label>
+              <label className="config-label" htmlFor="email">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -156,7 +163,9 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="config-label" htmlFor="password">Password</label>
+              <label className="config-label" htmlFor="password">
+                Password
+              </label>
               <div className="relative">
                 <input
                   id="password"
@@ -173,7 +182,13 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "rgba(200,205,216,0.35)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  style={{
+                    color: "rgba(200,205,216,0.35)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -194,20 +209,36 @@ export default function LoginPage({ config, onLogin }: LoginPageProps) {
               </p>
             )}
 
-            <button
-              type="submit"
-              className="login-btn mt-1"
-              disabled={loading}
-            >
+            <button type="submit" className="login-btn mt-1" disabled={loading}>
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  <svg
+                    className="animate-spin"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeOpacity="0.25"
+                    />
+                    <path
+                      d="M12 2a10 10 0 0 1 10 10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   Signing in...
                 </span>
-              ) : "Sign In"}
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 
