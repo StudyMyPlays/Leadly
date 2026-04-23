@@ -57,12 +57,12 @@ export interface Lead {
 
 // ── Status display config ────────────────────────────────────────
 export const STATUS_CONFIG: Record<LeadStatus, { label: string; badge: string; color: string }> = {
-  "New":         { label: "New",         badge: "badge-cyan",   color: "#60a5fa" },
-  "Contacted":   { label: "Contacted",   badge: "badge-blue",   color: "#4D9FFF" },
+  "New":         { label: "New",         badge: "badge-cyan",   color: "#3b82f6" },
+  "Contacted":   { label: "Contacted",   badge: "badge-blue",   color: "#60a5fa" },
   "In Progress": { label: "In Progress", badge: "badge-amber",  color: "#f59e0b" },
-  "Won":         { label: "Won",         badge: "badge-green",  color: "#22c55e" },
+  "Won":         { label: "Won",         badge: "badge-green",  color: "#34d399" },
   "Lost":        { label: "Lost",        badge: "badge-red",    color: "#f87171" },
-  "Dead":        { label: "Dead",        badge: "badge-dim",    color: "rgba(212,216,224,0.42)" },
+  "Dead":        { label: "Dead",        badge: "badge-dim",    color: "rgba(212,216,224,0.3)" },
 }
 
 // Pipeline display order (for progress bars, funnel, filters)

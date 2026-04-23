@@ -442,12 +442,14 @@ function LeadRow({
       {/* Service */}
       <td className="px-4 py-3" style={{ minWidth: 130 }}>
         <span
-          className="inline-block px-2 py-0.5 rounded-md text-xs font-mono"
+          className="inline-block px-2 py-0.5 rounded-md text-xs font-mono truncate align-middle"
           style={{
             background: `${svc}14`,
             border: `1px solid ${svc}30`,
             color: svc,
+            maxWidth: 140,
           }}
+          title={lead.service}
         >
           {lead.service}
         </span>
@@ -561,12 +563,18 @@ function LeadRow({
 }
 
 function Avatar({ name }: { name: string }) {
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("")
+  // Always produce at least two characters so single-word names
+  // (e.g. "Madonna") still render a proper glyph instead of a single letter.
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean)
+  let initials: string
+  if (parts.length === 0) {
+    initials = "??"
+  } else if (parts.length === 1) {
+    const w = parts[0]
+    initials = (w.length >= 2 ? w.slice(0, 2) : w + w).toUpperCase()
+  } else {
+    initials = (parts[0][0] + parts[1][0]).toUpperCase()
+  }
 
   let h = 0
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
