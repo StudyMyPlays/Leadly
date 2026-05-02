@@ -206,20 +206,59 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
           </button>
         </div>
 
-        {/* Progress bar */}
-        <div style={{ height: 2, background: "rgba(255,255,255,0.05)" }}>
-          <div
-            style={{
-              height: "100%",
-              width: `${(step / 4) * 100}%`,
-              background: "rgba(59,130,246,0.6)",
-              transition: "width 0.2s ease",
-            }}
-          />
+        {/* Step progress — clickable dots with connectors */}
+        <div
+          className="flex items-center gap-0 px-6 py-3"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+        >
+          {([1, 2, 3, 4] as const).map((s) => {
+            const done    = s < step
+            const current = s === step
+            return (
+              <div key={s} className="flex items-center" style={{ flex: s < 4 ? 1 : undefined }}>
+                <button
+                  type="button"
+                  onClick={() => { if (done) setStep(s) }}
+                  style={{
+                    width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                    fontSize: 10, fontFamily: "var(--font-mono)", fontWeight: 600,
+                    cursor: done ? "pointer" : "default",
+                    background: done ? "rgba(59,130,246,0.22)" : current ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
+                    border: current ? "1px solid rgba(59,130,246,0.55)" : done ? "1px solid rgba(59,130,246,0.35)" : "1px solid rgba(255,255,255,0.09)",
+                    color: done ? "#60a5fa" : current ? "#93c5fd" : "rgba(226,232,240,0.25)",
+                    boxShadow: current ? "0 0 10px rgba(59,130,246,0.22)" : "none",
+                    transition: "all 0.15s ease",
+                  }}
+                  title={done ? `Back to step ${s}` : undefined}
+                  aria-label={`Step ${s}`}
+                >
+                  {done ? "✓" : s}
+                </button>
+                {s < 4 && (
+                  <div
+                    style={{
+                      flex: 1,
+                      height: 1,
+                      background: done ? "rgba(59,130,246,0.35)" : "rgba(255,255,255,0.06)",
+                      transition: "background 0.2s ease",
+                    }}
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 flex flex-col gap-4" style={{ minHeight: 300 }}>
+        <div id="lead-modal-body" className="px-6 py-5 flex flex-col gap-4" style={{ minHeight: 300 }}>
+          <style>{`
+            #lead-modal-body input:focus,
+            #lead-modal-body select:focus,
+            #lead-modal-body textarea:focus {
+              border-color: rgba(59,130,246,0.55) !important;
+              box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+            }
+          `}</style>
           {step === 1 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -351,16 +390,6 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
                   style={inputCss(false)}
                 />
               </Field>
-
-              <Field label="Notes / Description">
-                <textarea
-                  rows={3}
-                  placeholder="Any additional details about this lead…"
-                  value={form.notes}
-                  onChange={(e) => set("notes", e.target.value)}
-                  style={{ ...inputCss(false), resize: "none", lineHeight: 1.5 }}
-                />
-              </Field>
             </>
           )}
 
@@ -445,6 +474,16 @@ export default function AddLeadModal({ open, onClose, services = [], cities = []
                   />
                 </Field>
               </div>
+
+              <Field label="Notes / Description">
+                <textarea
+                  rows={3}
+                  placeholder="Any additional details about this lead…"
+                  value={form.notes}
+                  onChange={(e) => set("notes", e.target.value)}
+                  style={{ ...inputCss(false), resize: "none", lineHeight: 1.5 }}
+                />
+              </Field>
             </>
           )}
 
@@ -742,6 +781,7 @@ const inputCss = (hasError: boolean): React.CSSProperties => ({
   outline: "none",
   boxSizing: "border-box",
   transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+  colorScheme: "dark",
 })
 
 const selectCss = (): React.CSSProperties => ({

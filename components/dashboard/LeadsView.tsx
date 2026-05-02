@@ -174,6 +174,14 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
     if (removed) addNotification?.("warning", `${removed.name} was removed from pipeline`)
   }
 
+  const handleArchiveLead = useCallback((id: number) => {
+    setAllLeads((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, status: "Dead" as LeadStatus } : l)),
+    )
+    const lead = allLeads.find((l) => l.id === id)
+    if (lead) addNotification?.("warning", `${lead.name} archived`)
+  }, [allLeads, addNotification])
+
   // ── CSV export ���─────────────────────────────────────────────
   const exportCsv = () => {
     const headers = [
@@ -313,6 +321,7 @@ export default function LeadsView({ config, leads = SAMPLE_LEADS, addNotificatio
         currency={config.currency}
         onViewLead={setSelectedLead}
         onAddLead={() => setModalOpen(true)}
+        onArchiveLead={handleArchiveLead}
         allServices={config.services}
       />
 

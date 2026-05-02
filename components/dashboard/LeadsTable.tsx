@@ -47,6 +47,7 @@ interface LeadsTableProps {
   leads?: Lead[]
   onViewLead: (lead: Lead) => void
   onAddLead: () => void
+  onArchiveLead?: (id: number) => void
   currency?: string
   allServices?: string[]
 }
@@ -67,6 +68,7 @@ export default function LeadsTable({
   leads = SAMPLE_LEADS,
   onViewLead,
   onAddLead,
+  onArchiveLead,
   currency = "USD",
   allServices = [],
 }: LeadsTableProps) {
@@ -252,13 +254,13 @@ export default function LeadsTable({
 
       {/* ── Table panel ───────────────────────────────────────── */}
       <div
-        className="glass-card rounded-xl overflow-hidden"
-        style={{ boxShadow: "0 4px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)" }}
+        className="glass-card rounded-xl"
+        style={{ boxShadow: "0 4px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)", overflow: "clip" }}
       >
         <div className="overflow-x-auto">
           <table className="w-full text-xs font-sans" style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 1180 }}>
-            <thead>
-              <tr style={{ background: "rgba(255,255,255,0.025)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
+              <tr style={{ background: "rgba(8,8,10,0.97)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 {columns.map((col, i) => {
                   const active = col.key && sortKey === col.key
                   return (
@@ -271,6 +273,11 @@ export default function LeadsTable({
                         cursor: col.key ? "pointer" : "default",
                         userSelect: "none",
                         transition: "color 0.12s ease",
+                        ...(i === columns.length - 1 ? {
+                          position: "sticky", right: 0, zIndex: 5,
+                          background: "rgba(8,8,10,0.97)",
+                          borderLeft: "1px solid rgba(255,255,255,0.04)",
+                        } : {}),
                       }}
                       onClick={col.key ? () => toggleSort(col.key as SortKey) : undefined}
                       aria-sort={active ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
@@ -302,6 +309,7 @@ export default function LeadsTable({
                     copied={copied}
                     onCopy={copyPhone}
                     onView={onViewLead}
+                    onArchive={onArchiveLead}
                     allServices={allServices.length ? allServices : services}
                   />
                 ))
@@ -362,13 +370,14 @@ function FilterSelect({
 }
 
 function LeadRow({
-  lead, fmt, copied, onCopy, onView, allServices,
+  lead, fmt, copied, onCopy, onView, onArchive, allServices,
 }: {
   lead: Lead
   fmt: (n: number) => string
   copied: number | null
   onCopy: (l: Lead) => void
   onView: (l: Lead) => void
+  onArchive?: (id: number) => void
   allServices: string[]
 }) {
   const sc  = STATUS_CONFIG[lead.status]
@@ -537,11 +546,17 @@ function LeadRow({
         {fmt(lead.estValue)}
       </td>
 
-      {/* Actions */}
+      {/* Actions — sticky right so it stays visible during horizontal scroll */}
       <td
         className="px-4 py-3"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: 110 }}
+        style={{
+          width: 110,
+          position: "sticky",
+          right: 0,
+          background: "rgba(8,8,10,0.99)",
+          borderLeft: "1px solid rgba(255,255,255,0.03)",
+        }}
       >
         <div
           className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100"
@@ -553,7 +568,11 @@ function LeadRow({
           <ActionBtn color="#c084fc" label="Edit" onClick={() => onView(lead)}>
             <Pencil size={12} />
           </ActionBtn>
-          <ActionBtn color="rgba(212,216,224,0.4)" label="Archive" onClick={() => {}}>
+          <ActionBtn
+            color="rgba(212,216,224,0.4)"
+            label="Archive"
+            onClick={() => onArchive?.(lead.id)}
+          >
             <Archive size={12} />
           </ActionBtn>
         </div>
