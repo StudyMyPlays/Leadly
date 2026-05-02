@@ -119,7 +119,7 @@ export default function Sidebar({
                 key={id}
                 onClick={() => onNavigate(id)}
                 className={cn(
-                  "nav-item flex items-center rounded-lg w-full text-left",
+                  "relative nav-item flex items-center rounded-lg w-full text-left",
                   isActive ? "active" : "",
                   expanded
                     ? "gap-3 px-2 py-2.5 justify-start"
@@ -147,6 +147,15 @@ export default function Sidebar({
                     style={{
                       background: "#3b82f6",
                       boxShadow: "0 0 6px rgba(59,130,246,0.6)",
+                    }}
+                  />
+                )}
+                {!expanded && isActive && (
+                  <span
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-l-full"
+                    style={{
+                      background: "#3b82f6",
+                      boxShadow: "0 0 6px rgba(59,130,246,0.7)",
                     }}
                   />
                 )}
@@ -193,7 +202,7 @@ export default function Sidebar({
                     href={href}
                     onClick={handleAdminLinkClick}
                     className={cn(
-                      "nav-item flex items-center rounded-lg w-full transition-colors",
+                      "relative nav-item flex items-center rounded-lg w-full transition-colors",
                       expanded
                         ? "gap-3 px-2 py-2.5 justify-start"
                         : "justify-center px-0 py-2.5",
@@ -227,6 +236,15 @@ export default function Sidebar({
                         style={{
                           background: "#10b981",
                           boxShadow: "0 0 6px rgba(16,185,129,0.6)",
+                        }}
+                      />
+                    )}
+                    {!expanded && isActive && (
+                      <span
+                        className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-l-full"
+                        style={{
+                          background: "#10b981",
+                          boxShadow: "0 0 6px rgba(16,185,129,0.7)",
                         }}
                       />
                     )}
